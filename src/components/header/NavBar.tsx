@@ -55,7 +55,8 @@ const NavBar = () => {
   return (
     <div className="relative" onMouseLeave={handleMenuLeave}>
       <nav className="border-b border-gray-200 bg-white">
-        <div className="mx-auto flex max-w-[900px] items-center justify-center gap-5 px-4 py-3 text-[14px] font-normal text-gray-900">
+        <div className="mx-auto flex h-[38px] max-w-[1200px] items-center justify-center gap-4 px-3 text-[15px] font-normal text-gray-900">
+          {" "}
           <span className="cursor-pointer text-gray-700 transition hover:text-[#C9A24D]">
             New Arrivals
           </span>
@@ -63,7 +64,7 @@ const NavBar = () => {
             <img
               src={delivery}
               alt="Express Delivery"
-              className="h-[30px] w-[30px] object-contain"
+              className="h-[40px] w-[40px] object-contain"
             />
             Express Delivery
           </span>
@@ -85,9 +86,9 @@ const NavBar = () => {
               flex items-center gap-1 cursor-pointer
               bg-[#F5C542] hover:bg-[#E6B800]
               text-[#2F2F2F]
-              px-2 py-0.5
-              rounded-full
-              text-[11px]
+             px-2 py-[2px]
+rounded-full
+text-[10px]
               transition
             "
           >
@@ -97,9 +98,6 @@ const NavBar = () => {
               className="h-[20px] w-[20px] object-contain"
             />
             Offers
-          </span>
-          <span className="cursor-pointer font-medium text-[#D4AF37]">
-            Today&apos;s Rate
           </span>
         </div>
       </nav>

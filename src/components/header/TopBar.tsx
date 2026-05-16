@@ -19,7 +19,7 @@ const TopBar = () => {
   return (
     <div
       style={{
-        background: "#b91c1c",
+        background: "#FE7F00",
         height: "32px",
         display: "flex",
         alignItems: "center",

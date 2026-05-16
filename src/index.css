@@ -21,3 +21,45 @@ body {
   -ms-overflow-style: none;
   scrollbar-width: none;
 }
+
+@keyframes slideRightToLeft {
+  0% {
+    transform: translateX(100%);
+    opacity: 0.4;
+  }
+
+  100% {
+    transform: translateX(0%);
+    opacity: 1;
+  }
+}
+
+.animate-slideRightToLeft {
+  animation: slideRightToLeft 0.8s ease;
+}
+
+@keyframes newSlideIn {
+  0% {
+    transform: translateX(100%);
+  }
+  100% {
+    transform: translateX(0%);
+  }
+}
+
+@keyframes oldSlideOut {
+  0% {
+    transform: translateX(0%);
+  }
+  100% {
+    transform: translateX(-100%);
+  }
+}
+
+.animate-newSlideIn {
+  animation: newSlideIn 0.8s ease-in-out forwards;
+}
+
+.animate-oldSlideOut {
+  animation: oldSlideOut 0.8s ease-in-out forwards;
+}

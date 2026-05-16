@@ -38,21 +38,21 @@ const SearchBar = () => {
   }, [text, isDeleting, wordIndex, isFocused]);
 
   return (
-    <div className="relative w-[420px]">
+    <div className="relative w-[360px]">
       <input
         type="text"
         onFocus={() => setIsFocused(true)}
         onBlur={() => setIsFocused(false)}
         placeholder={isFocused ? "" : `Search for ${text}`}
-        className="w-full rounded-full border border-[#C9A24D]
-                   px-4 pr-10 py-2 text-sm
-                   text-black placeholder:text-black
-                   focus:outline-none
-                   focus:ring-2 focus:ring-[#C9A24D]
-                   focus:border-[#C9A24D]"
+        className="h-[38px] w-full rounded-full border border-[#C9A24D]
+           px-4 pr-10 text-[13px]
+           text-black placeholder:text-black
+           focus:outline-none
+           focus:ring-2 focus:ring-[#C9A24D]
+           focus:border-[#C9A24D]"
       />
 
-      <Search className="absolute right-4 top-1/2 h-5 w-5 -translate-y-1/2 text-gray-400" />
+      <Search className="absolute right-4 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-400" />
     </div>
   );
 };

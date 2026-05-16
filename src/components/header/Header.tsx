@@ -6,8 +6,11 @@ const Header = () => {
   return (
     <>
       <TopBar />
-      <MainHeader />
-      <NavBar />
+      {/* STICKY HEADER */}
+      <div className="sticky top-0 z-[9999] bg-white">
+        <MainHeader />
+        <NavBar />
+      </div>
     </>
   );
 };
