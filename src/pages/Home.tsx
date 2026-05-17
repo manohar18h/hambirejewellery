@@ -1,5 +1,9 @@
 import { useEffect, useState } from "react";
 import hjIcone from "../assets/hjicone.png";
+import hallmark from "../assets/hallmark.png";
+import certified from "../assets/certified2.png";
+import easyexchange from "../assets/easyexchange.png";
+import service from "../assets/service.png";
 
 const banners = [
   {
@@ -316,7 +320,7 @@ const Home = () => {
               </h3>
             </div>
           </div>
-          <div className="mt-6 flex justify-center pb-2">
+          <div className="mt-3 flex justify-center pb-0">
             {" "}
             <button className="rounded-md border border-[#d7264b] px-20 py-4 text-[17px] font-medium text-[#d7264b] hover:bg-[#d7264b] hover:text-white">
               Discover More
@@ -327,9 +331,9 @@ const Home = () => {
 
       <section className="bg-[#fcfcfc] px-6 ">
         <div className="relative z-20">
-          <div className="mx-auto max-w-[1450px] px-10 py-14">
+          <div className="mx-auto max-w-[1450px] px-10 py-6">
             {" "}
-            <div className="mb-8 pt-0 text-center">
+            <div className="mb-3 pt-0 text-center">
               <div className="flex items-center justify-center gap-3">
                 <div className="h-[1.5px] w-[100px] bg-[#ef9541]" />
 
@@ -350,7 +354,7 @@ const Home = () => {
                 Find your style. Explore our diverse collections!
               </p>
             </div>
-            <div className="mx-auto mt-10 grid max-w-[1320px] grid-cols-3 gap-10">
+            <div className="mx-auto mt-4 grid max-w-[1320px] grid-cols-3 gap-10">
               {" "}
               {collections.map((item, index) => (
                 <div
@@ -429,6 +433,182 @@ const Home = () => {
           </button>
         </div>
       </div>
+
+      {/* SHOP BY GENDER */}
+      <div className="mx-auto mt-14 max-w-[1450px] px-10 pb-14">
+        <div className="mb-6 text-center">
+          <div className="flex items-center justify-center gap-3">
+            <div className="h-[1.5px] w-[80px] bg-[#ef9541]" />
+
+            <img
+              src={hjIcone}
+              alt="HJ Logo"
+              className="h-[42px] w-auto object-contain"
+            />
+
+            <div className="h-[1.5px] w-[80px] bg-[#ef9541]" />
+          </div>
+
+          <h2 className="mt-2 text-[34px] font-serif tracking-wide text-[#0f172a]">
+            SHOP BY GENDER
+          </h2>
+
+          <p className="mt-2 text-[17px] text-gray-700">
+            Find Jewelry for Women, Men, and Kids
+          </p>
+        </div>
+
+        <div className="mx-auto grid max-w-[1500px] grid-cols-3 gap-6 items-end">
+          {" "}
+          {/* WOMEN */}
+          <div className="group cursor-pointer  translate-y-6">
+            <div className="overflow-hidden rounded-[24px]">
+              <img
+                src="https://images.unsplash.com/photo-1617038220319-276d3cfab638?w=900"
+                alt="Women's Jewellery"
+                className="h-[450px] w-full object-cover transition-transform duration-700 group-hover:scale-110"
+              />
+            </div>
+
+            <h3 className="mt-2 text-center font-serif text-[18px] text-[#d7264b]">
+              Women's Jewellery
+            </h3>
+          </div>
+          {/* MEN */}
+          <div className="group cursor-pointer -translate-y-6">
+            <div className="overflow-hidden rounded-[24px]">
+              <img
+                src="https://images.unsplash.com/photo-1517841905240-472988babdf9?w=900"
+                alt="Men's Jewellery"
+                className="h-[450px] w-full object-cover transition-transform duration-700 group-hover:scale-110"
+              />
+            </div>
+
+            <h3 className="mt-2 text-center font-serif text-[18px] text-[#d7264b]">
+              Men's Jewellery
+            </h3>
+          </div>
+          {/* KIDS */}
+          <div className="group cursor-pointer translate-y-6">
+            <div className="overflow-hidden rounded-[24px]">
+              <img
+                src="https://images.unsplash.com/photo-1519345182560-3f2917c472ef?w=900"
+                alt="Kid's Jewellery"
+                className="h-[450px] w-full object-cover transition-transform duration-700 group-hover:scale-110"
+              />
+            </div>
+
+            <h3 className="mt-2 text-center font-serif text-[18px] text-[#d7264b]">
+              Kid's Jewellery
+            </h3>
+          </div>
+        </div>
+      </div>
+      <section className="mt-16 w-full">
+        {/* TITLE */}
+        <div className="mb-8 text-center">
+          <div className="mb-2 flex items-center justify-center gap-4">
+            <div className="h-[1px] w-[60px] bg-[#FE7F00]" />
+            <span className="text-[28px] text-[#FE7F00]">◇</span>
+            <div className="h-[1px] w-[60px] bg-[#FE7F00]" />
+          </div>
+
+          <h2 className="text-[42px] font-serif text-[#0f172a]">
+            QUALITY-FIRST SERVICE
+          </h2>
+
+          <p className="mt-2 text-[18px] text-gray-700">
+            We assure you that you will get what you can trust. Always!
+          </p>
+        </div>
+
+        {/* VIDEO */}
+        <div className="overflow-hidden">
+          <video
+            className="h-[420px] w-full object-cover"
+            autoPlay
+            muted
+            loop
+            playsInline
+            controls
+          >
+            <source
+              src="https://videos.pexels.com/video-files/4624243/4624243-hd_1920_1080_25fps.mp4"
+              type="video/mp4"
+            />
+          </video>
+        </div>
+      </section>
+      <section className="bg-[#fcfcfc] px-6 py-16">
+        <div className="relative mx-auto max-w-[1500px] px-10 py-10">
+          <div className="relative rounded-[36px] border border-[#cfc8c1] bg-[#fbfaf7] px-10 py-16">
+            {/* TOP LEFT CURVE */}
+            <div className="absolute left-[70px] top-[-1px] h-[46px] w-[90px] rounded-b-[50px] border-b border-l border-r border-[#cfc8c1] bg-[#fcfcfc]" />
+
+            {/* TOP RIGHT CURVE */}
+            <div className="absolute right-[70px] top-[-1px] h-[46px] w-[90px] rounded-b-[50px] border-b border-l border-r border-[#cfc8c1] bg-[#fcfcfc]" />
+
+            {/* BOTTOM LEFT CURVE */}
+            <div className="absolute bottom-[-1px] left-[70px] h-[46px] w-[90px] rounded-t-[50px] border-l border-r border-t border-[#cfc8c1] bg-[#fcfcfc]" />
+
+            {/* BOTTOM RIGHT CURVE */}
+            <div className="absolute bottom-[-1px] right-[70px] h-[46px] w-[90px] rounded-t-[50px] border-l border-r border-t border-[#cfc8c1] bg-[#fcfcfc]" />
+
+            <div className="relative z-10 text-center">
+              <h2 className="font-serif text-[46px] text-[#3b1111]">
+                The Hambire Assurance
+              </h2>
+
+              <p className="mt-2 text-[22px] text-gray-600">
+                Crafted by experts, cherished by you.
+              </p>
+            </div>
+
+            <div className="relative z-10 mt-10 grid grid-cols-2 gap-y-12 lg:grid-cols-4">
+              {[
+                {
+                  image: hallmark,
+                  title: "Purity\nGuarantee",
+                },
+                {
+                  image: service,
+                  title: "Lifetime\nMaintenance",
+                },
+                {
+                  image: certified,
+                  title: "Certified\nJewellery",
+                },
+
+                {
+                  image: easyexchange,
+                  title: "Easy\nExchange",
+                },
+              ].map((item) => (
+                <div
+                  key={item.title}
+                  className="flex flex-col items-center text-center"
+                >
+                  <div className="flex items-center justify-center ">
+                    <img
+                      src={item.image}
+                      alt={item.title}
+                      className={`object-contain ${
+                        item.title === "Easy\nExchange"
+                          ? "h-[65px] w-[65px]"
+                          : "h-[80px] w-[80px]"
+                      }`}
+                    />
+                  </div>
+
+                  <h3 className="mt-2 whitespace-pre-line font-serif text-[22px] leading-tight text-[#3b1111]">
+                    {item.title}
+                  </h3>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+      </section>
     </div>
   );
 };
