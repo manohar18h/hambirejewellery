@@ -4,7 +4,8 @@ import hallmark from "../assets/hallmark.png";
 import certified from "../assets/certified2.png";
 import easyexchange from "../assets/easyexchange.png";
 import service from "../assets/service.png";
-
+import hjlogo from "../assets/logo.png";
+import { Instagram, Facebook, Youtube, MessageCircle } from "lucide-react";
 const banners = [
   {
     type: "image",
@@ -435,7 +436,7 @@ const Home = () => {
       </div>
 
       {/* SHOP BY GENDER */}
-      <div className="mx-auto mt-14 max-w-[1450px] px-10 pb-14">
+      <div className="mx-auto mt-5 max-w-[1450px] px-10 pb-14">
         <div className="mb-6 text-center">
           <div className="flex items-center justify-center gap-3">
             <div className="h-[1.5px] w-[80px] bg-[#ef9541]" />
@@ -504,15 +505,22 @@ const Home = () => {
           </div>
         </div>
       </div>
-      <section className="mt-16 w-full">
+      <section className="mt-5 w-full ">
         {/* TITLE */}
         <div className="mb-8 text-center">
-          <div className="mb-2 flex items-center justify-center gap-4">
-            <div className="h-[1px] w-[60px] bg-[#FE7F00]" />
-            <span className="text-[28px] text-[#FE7F00]">◇</span>
-            <div className="h-[1px] w-[60px] bg-[#FE7F00]" />
-          </div>
+          <div className="mb-3 pt-0 text-center">
+            <div className="flex items-center justify-center gap-3">
+              <div className="h-[1.5px] w-[100px] bg-[#ef9541]" />
 
+              <img
+                src={hjIcone}
+                alt="HJ Logo"
+                className="h-[50px] w-auto object-contain "
+              />
+
+              <div className="h-[1.5px] w-[100px] bg-[#ef9541]" />
+            </div>
+          </div>
           <h2 className="text-[42px] font-serif text-[#0f172a]">
             QUALITY-FIRST SERVICE
           </h2>
@@ -539,7 +547,7 @@ const Home = () => {
           </video>
         </div>
       </section>
-      <section className="bg-[#fcfcfc] px-6 py-16">
+      <section className="bg-[#fcfcfc] px-6 py-16 -mt-12">
         <div className="relative mx-auto max-w-[1500px] px-10 py-10">
           <div className="relative rounded-[36px] border border-[#cfc8c1] bg-[#fbfaf7] px-10 py-16">
             {/* TOP LEFT CURVE */}
@@ -609,6 +617,262 @@ const Home = () => {
           </div>
         </div>
       </section>
+      <section className="bg-[#fcfcfc] px-10 py-12 -mt-20">
+        <div className="mx-auto max-w-[1500px]">
+          <div className="mb-8 text-center">
+            <div className="flex items-center justify-center gap-3">
+              <div className="h-[1.5px] w-[80px] bg-[#ef9541]" />
+              <img
+                src={hjIcone}
+                alt="HJ Logo"
+                className="h-[42px] w-auto object-contain"
+              />
+              <div className="h-[1.5px] w-[80px] bg-[#ef9541]" />
+            </div>
+
+            <h2 className="mt-2 text-[34px] font-serif tracking-wide text-[#0f172a]">
+              FOLLOW US ON INSTAGRAM
+            </h2>
+
+            <p className="mt-2 text-[17px] text-gray-700">
+              Stay Updated with Our Stories and Updates on Instagram
+            </p>
+          </div>
+
+          <div className="grid grid-cols-3 gap-6">
+            <div className="flex flex-col gap-6">
+              <img
+                src="https://images.unsplash.com/photo-1601121141461-9d6647bca1ed?w=900"
+                className="h-[280px] w-full rounded-xl object-cover"
+              />
+
+              <img
+                src="https://images.unsplash.com/photo-1602173574767-37ac01994b2a?w=900"
+                className="h-[280px] w-full rounded-xl object-cover"
+              />
+            </div>
+
+            <video
+              autoPlay
+              muted
+              loop
+              playsInline
+              controls
+              className="h-[586px] w-full rounded-xl object-cover"
+            >
+              <source
+                src="https://videos.pexels.com/video-files/855341/855341-hd_1920_1080_25fps.mp4"
+                type="video/mp4"
+              />
+            </video>
+
+            <div className="flex flex-col gap-6">
+              <img
+                src="https://images.unsplash.com/photo-1617038260897-41a1f14a8ca0?w=900"
+                className="h-[280px] w-full rounded-xl object-cover"
+              />
+
+              <img
+                src="https://images.unsplash.com/photo-1515562141207-7a88fb7ce338?w=900"
+                className="h-[280px] w-full rounded-xl object-cover"
+              />
+            </div>
+          </div>
+        </div>
+      </section>
+      <section className="bg-[#fcfcfc] px-15 py-20">
+        <div className="mx-auto grid max-w-[1500px] grid-cols-2 items-center gap-16">
+          {/* LEFT IMAGES */}
+          <div className="relative flex items-center">
+            <img
+              src="https://images.unsplash.com/photo-1617038260897-41a1f14a8ca0?w=900"
+              alt=""
+              className="h-[450px] w-[380px] rounded-[26px] object-cover shadow-lg"
+            />
+
+            <img
+              src="https://images.unsplash.com/photo-1602173574767-37ac01994b2a?w=900"
+              alt=""
+              className="absolute left-[320px] top-8 h-[400px] w-[340px] rounded-[26px] object-cover shadow-2xl"
+            />
+          </div>
+
+          {/* RIGHT CONTENT */}
+          <div className="max-w-[620px]">
+            <h2 className="text-[30px] font-serif leading-tight text-[#111827]">
+              Need help in choosing the best Jewellery?
+            </h2>
+
+            <p className="mt-6 text-[20px] leading-[30px] text-gray-700">
+              Hambire Jewellery is a premium shopping destination for gold and
+              diamond jewellery dedicated to embellishing your everyday moments
+              and milestones with elegance.
+            </p>
+
+            <div className="mt-10 flex items-center gap-5">
+              <button
+                className="
+            rounded-md bg-[#c91f3a]
+            px-10 py-4
+            text-[18px] font-semibold text-white
+            transition hover:bg-[#a71931]
+          "
+              >
+                Store Locator
+              </button>
+
+              <button
+                className="
+            rounded-md border border-[#c91f3a]
+            px-10 py-4
+            text-[18px] font-semibold text-[#c91f3a]
+            transition hover:bg-[#fff5f7]
+          "
+              >
+                Request Call Back
+              </button>
+            </div>
+          </div>
+        </div>
+      </section>
+      <footer className="bg-[#111111] text-white">
+        {/* TOP FOOTER */}
+        <div className="mx-auto grid max-w-[1500px] grid-cols-4 gap-14 px-10 py-16">
+          {/* LOGO + ABOUT */}
+          <div>
+            <div className="flex items-center gap-3">
+              <img
+                src={hjlogo}
+                alt="Hambire"
+                className="h-[70px] w-[70px] object-contain"
+              />
+
+              <div>
+                <h2 className="text-[34px] font-bold text-[#FE7F00]">
+                  Hambire
+                </h2>
+
+                <p className="tracking-[5px] text-gray-400">JEWELLERY</p>
+              </div>
+            </div>
+
+            <p className="mt-6 text-[15px] leading-8 text-gray-400">
+              Hambire Jewellery brings timeless elegance with premium gold,
+              diamond, silver and bridal collections crafted for every special
+              moment.
+            </p>
+
+            {/* SOCIAL */}
+            <div className="mt-7 flex gap-4">
+              <div className="cursor-pointer rounded-full bg-[#1f1f1f] p-3 text-gray-300 transition hover:bg-[#FE7F00] hover:text-white">
+                <Instagram className="h-5 w-5" />
+              </div>
+
+              <div className="cursor-pointer rounded-full bg-[#1f1f1f] p-3 text-gray-300 transition hover:bg-[#FE7F00] hover:text-white">
+                <Facebook className="h-5 w-5" />
+              </div>
+
+              <div className="cursor-pointer rounded-full bg-[#1f1f1f] p-3 text-gray-300 transition hover:bg-[#FE7F00] hover:text-white">
+                <Youtube className="h-5 w-5" />
+              </div>
+
+              <div className="cursor-pointer rounded-full bg-[#1f1f1f] p-3 text-gray-300 transition hover:bg-[#FE7F00] hover:text-white">
+                <MessageCircle className="h-5 w-5" />
+              </div>
+            </div>
+          </div>
+
+          {/* QUICK LINKS */}
+          <div>
+            <h3 className="mb-6 text-[22px] font-semibold text-white">
+              Quick Links
+            </h3>
+
+            <div className="flex flex-col gap-4 text-gray-400">
+              <a className="hover:text-[#FE7F00]">Home</a>
+              <a className="hover:text-[#FE7F00]">Collections</a>
+              <a className="hover:text-[#FE7F00]">Gold Scheme</a>
+              <a className="hover:text-[#FE7F00]">Offers</a>
+              <a className="hover:text-[#FE7F00]">About Us</a>
+              <a className="hover:text-[#FE7F00]">Contact Us</a>
+            </div>
+          </div>
+
+          {/* CATEGORIES */}
+          <div>
+            <h3 className="mb-6 text-[22px] font-semibold text-white">
+              Jewellery
+            </h3>
+
+            <div className="flex flex-col gap-4 text-gray-400">
+              <a className="hover:text-[#FE7F00]">Gold Jewellery</a>
+              <a className="hover:text-[#FE7F00]">Diamond Jewellery</a>
+              <a className="hover:text-[#FE7F00]">Silver Jewellery</a>
+              <a className="hover:text-[#FE7F00]">Bridal Collections</a>
+              <a className="hover:text-[#FE7F00]">Men's Jewellery</a>
+              <a className="hover:text-[#FE7F00]">Kids Jewellery</a>
+            </div>
+          </div>
+
+          {/* CONTACT */}
+          <div>
+            <h3 className="mb-6 text-[22px] font-semibold text-white">
+              Contact Us
+            </h3>
+
+            <div className="space-y-5 text-gray-400">
+              <p>📍 Hambire Jewellery, Hyderabad, India</p>
+
+              <p>📞 +91 98765 43210</p>
+
+              <p>✉️ support@hambirejewellery.com</p>
+
+              <p>🕒 Mon - Sun : 10 AM - 9 PM</p>
+            </div>
+
+            {/* NEWSLETTER */}
+            <div className="mt-8">
+              <p className="mb-3 text-[16px] text-white">
+                Subscribe Newsletter
+              </p>
+
+              <div className="flex overflow-hidden rounded-full bg-white">
+                <input
+                  type="text"
+                  placeholder="Enter your email"
+                  className="w-full px-5 py-3 text-black outline-none"
+                />
+
+                <button className="bg-[#FE7F00] px-6 font-semibold text-white">
+                  Join
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* MIDDLE LINE */}
+        <div className="h-[1px] w-full bg-[#2d2d2d]" />
+
+        {/* BOTTOM FOOTER */}
+        <div className="flex flex-wrap items-center justify-between gap-4 px-10 py-6 text-[14px] text-gray-400">
+          <p>© 2026 Hambire Jewellery. All Rights Reserved.</p>
+
+          <div className="flex items-center gap-6">
+            <span className="hover:text-[#FE7F00] cursor-pointer">
+              Privacy Policy
+            </span>
+
+            <span className="hover:text-[#FE7F00] cursor-pointer">
+              Terms & Conditions
+            </span>
+
+            <span className="hover:text-[#FE7F00] cursor-pointer">
+              Shipping Policy
+            </span>
+          </div>
+        </div>
+      </footer>
     </div>
   );
 };
