@@ -5,48 +5,19 @@ import certified from "../assets/certified2.png";
 import easyexchange from "../assets/easyexchange.png";
 import service from "../assets/service.png";
 import hjlogo from "../assets/logo.png";
+import axios from "axios";
+import { useNavigate } from "react-router-dom";
 import { Instagram, Facebook, Youtube, MessageCircle } from "lucide-react";
-const banners = [
-  {
-    type: "image",
-    color1: "#0f172a",
-    color2: "#1e293b",
-    title: "MAKE YOUR DREAMS",
-    subTitle: "Luxury Gold Collections",
-    image:
-      "https://images.unsplash.com/photo-1617038260897-41a1f14a8ca0?w=1600",
-  },
+type BannerSlide = {
+  bannerId: number;
+  title: string;
+  subTitle: string;
+  mediaUrl: string;
+  mediaType: "IMAGE" | "VIDEO";
+  sortOrder: number;
+  activeStatus: boolean;
+};
 
-  {
-    type: "image",
-    color1: "#7c2d12",
-    color2: "#ea580c",
-    title: "FLAT 20% OFF",
-    subTitle: "On Making Charges",
-    image:
-      "https://images.unsplash.com/photo-1605100804763-247f67b3557e?w=1600",
-  },
-
-  {
-    type: "video",
-    color1: "#000000",
-    color2: "#111111",
-    title: "HAMBIRE SIGNATURE",
-    subTitle: "Timeless Diamond Jewellery",
-    video:
-      "https://videos.pexels.com/video-files/855341/855341-hd_1920_1080_25fps.mp4",
-  },
-
-  {
-    type: "image",
-    color1: "#4c1d95",
-    color2: "#9333ea",
-    title: "NEW ARRIVALS",
-    subTitle: "Exclusive Bridal Jewellery",
-    image:
-      "https://images.unsplash.com/photo-1515562141207-7a88fb7ce338?w=1600",
-  },
-];
 
 const collections = [
   {
@@ -158,25 +129,62 @@ const SlidingCategoryCard = ({
   );
 };
 
+
+
 const Home = () => {
-  const [active, setActive] = useState(0);
+const [active, setActive] = useState(0);
+const [banners, setBanners] = useState<BannerSlide[]>([]);
+const navigate = useNavigate();
 
-  useEffect(() => {
-    const timer = setInterval(() => {
-      setActive((prev) => (prev + 1) % banners.length);
-    }, 3000);
+useEffect(() => {
+  axios
+    .get("https://api.hambirejewellery.com/api/catalog/banners")
+    .then((res) => {
+const sorted = (res.data || [])
+  .filter((banner: BannerSlide) => banner.activeStatus)
+  .sort(
+    (a: BannerSlide, b: BannerSlide) =>
+      a.sortOrder - b.sortOrder
+  );
 
-    return () => clearInterval(timer);
-  }, []);
+setBanners(sorted);      setActive(0);
+    })
+    .catch((err) => console.error("Banner fetch failed", err));
+}, []);
 
-  const banner = banners[active];
+
+ useEffect(() => {
+  if (banners.length === 0) return;
+
+  const timer = setInterval(() => {
+    setActive((prev) => (prev + 1) % banners.length);
+  }, 3000);
+
+  return () => clearInterval(timer);
+}, [banners.length]);
+
+  if (banners.length === 0) {
+  return <div className="h-[520px] bg-black text-white">Loading banners...</div>;
+}
+
+const banner =
+  banners[active] ??
+  banners[0] ?? {
+    bannerId: 0,
+    title: "",
+    subTitle: "",
+    mediaUrl: "",
+    mediaType: "IMAGE",
+    sortOrder: 0,
+    activeStatus: true,
+  };
 
   return (
     <div className="w-full bg-[#f8f8f8]">
-      <section className="relative h-[520px] w-full overflow-hidden bg-black">
-        <div className="relative h-[720px] w-full overflow-hidden">
+      <section className="relative h-[570px] w-full overflow-hidden bg-black">
+        <div className="relative h-[570px] w-full overflow-hidden">
           {/* VIDEO */}
-          {banner.type === "video" ? (
+          {banner.mediaType === "VIDEO" ? (
             <video
               autoPlay
               muted
@@ -184,11 +192,11 @@ const Home = () => {
               playsInline
               className="absolute inset-0 h-full w-full object-cover"
             >
-              <source src={banner.video} type="video/mp4" />
+              <source src={banner.mediaUrl} type="video/mp4" />
             </video>
           ) : (
             <img
-              src={banner.image}
+              src={banner.mediaUrl}
               alt={banner.title}
               className="absolute inset-0 h-full w-full object-cover"
             />
@@ -197,7 +205,7 @@ const Home = () => {
           {/* DARK OVERLAY */}
           <div className="absolute inset-0 bg-black/45" />
 
-          {/* CONTENT */}
+          {/* CONTENT
           <div className="relative z-20 mx-auto flex h-full max-w-[1450px] items-center px-16">
             <div className="max-w-[700px]">
               <p className="text-[20px] font-medium tracking-wide text-white/90">
@@ -216,7 +224,7 @@ const Home = () => {
                 SHOP NOW
               </button>
             </div>
-          </div>
+          </div> */}
 
           {/* DOTS */}
           <div className="absolute bottom-8 left-1/2 z-30 flex -translate-x-1/2 gap-3">
@@ -505,6 +513,70 @@ const Home = () => {
           </div>
         </div>
       </div>
+
+  <section className=" mt-16 bg-[#0d0702] px-10 py-20 text-white">
+  <div className="mx-auto grid max-w-[1500px] grid-cols-2 items-center gap-14">
+    <div>
+      <p className="text-[30px] font-bold uppercase tracking-[5px] text-[#f5c542]">
+        Hambire Gold Schemes
+      </p>
+
+      <h2 className="mt-4 font-serif text-[56px] leading-tight">
+        Save Gold. <br />
+        Buy Jewellery. <br />
+        Grow Securely.
+      </h2>
+
+      <p className="mt-6 max-w-[650px] text-[19px] leading-8 text-white/70">
+        Explore our premium jewellery saving schemes including Pre-Booking,
+        11 Month Flexi Plan and Quick Buy Gold & Silver Wallet.
+      </p>
+
+   
+
+      <button
+
+      onClick={() => {
+  navigate("/schemes");
+
+  setTimeout(() => {
+    window.scrollTo({
+      top: 100,
+      behavior: "smooth",
+    });
+  }, 100);
+}}
+
+       className="mt-9 rounded-full bg-[#f5c542] px-10 py-4 text-[17px] font-bold text-black transition hover:scale-105"
+      >
+        Explore Gold Schemes
+      </button>
+    </div>
+
+    <div className="grid grid-cols-2 gap-5">
+      {[
+        ["Pre-Booking", "Exchange old gold or book jewellery in advance."],
+        ["Flexi 11 Plan", "Pay monthly and enjoy jewellery benefits."],
+        ["Quick Buy", "Buy gold or silver by amount anytime."],
+        ["Metal Wallet", "Save your gold and silver balance securely."],
+      ].map(([title, desc]) => (
+        <div
+          key={title}
+          className="rounded-[28px] border border-white/10 bg-white/10 p-7 backdrop-blur-xl"
+        >
+          <h3 className="font-serif text-[26px] text-[#f5c542]">
+            {title}
+          </h3>
+
+          <p className="mt-4 text-[16px] leading-7 text-white/65">
+            {desc}
+          </p>
+        </div>
+      ))}
+    </div>
+  </div>
+</section>
+
       <section className="mt-5 w-full ">
         {/* TITLE */}
         <div className="mb-8 text-center">
@@ -547,6 +619,7 @@ const Home = () => {
           </video>
         </div>
       </section>
+    
       <section className="bg-[#fcfcfc] px-6 py-16 -mt-12">
         <div className="relative mx-auto max-w-[1500px] px-10 py-10">
           <div className="relative rounded-[36px] border border-[#cfc8c1] bg-[#fbfaf7] px-10 py-16">

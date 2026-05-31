@@ -1,66 +1,61 @@
 import { useEffect, useState } from "react";
+import axios from "axios";
 
 type BannerSlide = {
-  id: number;
+  bannerId: number;
   title: string;
   subTitle: string;
   mediaUrl: string;
   mediaType: "IMAGE" | "VIDEO";
+  sortOrder: number;
+  activeStatus: boolean;
 };
 
-const staticBanners: BannerSlide[] = [
-  {
-    id: 1,
-    title: "Make your dreams a reality with Gold",
-    subTitle: "Premium jewellery for every occasion",
-    mediaUrl:
-      "https://images.unsplash.com/photo-1601121141461-9d6647bca1ed?w=1800",
-    mediaType: "IMAGE",
-  },
-  {
-    id: 2,
-    title: "New Bridal Collection",
-    subTitle: "Crafted for your special day",
-    mediaUrl:
-      "https://images.unsplash.com/photo-1617038260897-41a1f14a8ca0?w=1800",
-    mediaType: "IMAGE",
-  },
-  {
-    id: 3,
-    title: "Shine brighter with Hambire",
-    subTitle: "Gold, diamond and gemstone collections",
-    mediaUrl:
-      "https://videos.pexels.com/video-files/855341/855341-hd_1920_1080_25fps.mp4",
-    mediaType: "VIDEO",
-  },
-  {
-    id: 4,
-    title: "Flat 20% Off",
-    subTitle: "On making charges",
-    mediaUrl:
-      "https://images.unsplash.com/photo-1605100804763-247f67b3557e?w=1800",
-    mediaType: "IMAGE",
-  },
-];
-
 const HomeBannerSlider = () => {
+  const [banners, setBanners] = useState<BannerSlide[]>([]);
   const [active, setActive] = useState(0);
 
   useEffect(() => {
+    fetchBanners();
+  }, []);
+
+  useEffect(() => {
+    if (banners.length === 0) return;
+
     const timer = setInterval(() => {
-      setActive((prev) => (prev + 1) % staticBanners.length);
+      setActive((prev) => (prev + 1) % banners.length);
     }, 5000);
 
     return () => clearInterval(timer);
-  }, []);
+  }, [banners]);
 
-  const banner = staticBanners[active];
+  const fetchBanners = async () => {
+    try {
+      const response = await axios.get(
+        "https://api.hambirejewellery.com/api/catalog/banners"
+      );
+
+      setBanners(response.data);
+    } catch (error) {
+      console.error("Banner fetch failed", error);
+    }
+  };
+
+  if (banners.length === 0) {
+    return (
+      <section className="flex h-[260px] md:h-[420px] lg:h-[560px] items-center justify-center bg-black text-white">
+        Loading banners...
+      </section>
+    );
+  }
+
+  const banner = banners[active];
 
   return (
-    <section className="relative h-[560px] w-full overflow-hidden bg-black">
+    <section className="relative h-[260px] md:h-[420px] lg:h-[560px] w-full overflow-hidden bg-black">
       {banner.mediaType === "VIDEO" ? (
         <video
-          key={banner.id}
+          key={banner.bannerId}
           src={banner.mediaUrl}
           className="h-full w-full object-cover"
           autoPlay
@@ -70,7 +65,7 @@ const HomeBannerSlider = () => {
         />
       ) : (
         <img
-          key={banner.id}
+          key={banner.bannerId}
           src={banner.mediaUrl}
           alt={banner.title}
           className="h-full w-full object-cover"
@@ -80,23 +75,28 @@ const HomeBannerSlider = () => {
       <div className="absolute inset-0 bg-black/35" />
 
       <div className="absolute left-[7%] top-1/2 z-20 max-w-[560px] -translate-y-1/2 text-white">
-        <h1 className="text-[48px] font-extrabold leading-tight">
+        <h1 className="text-[26px] font-extrabold leading-tight md:text-[40px] lg:text-[56px]">
           {banner.title}
         </h1>
-        <p className="mt-3 text-[24px] font-medium">{banner.subTitle}</p>
-        <button className="mt-8 rounded-full bg-white px-10 py-4 text-[17px] font-bold text-black shadow-lg">
+
+        <p className="mt-3 text-[14px] font-medium md:text-[20px] lg:text-[24px]">
+          {banner.subTitle}
+        </p>
+
+        <button className="mt-6 rounded-full bg-white px-7 py-3 text-[14px] font-bold text-black shadow-lg md:px-10 md:py-4 md:text-[17px]">
           SHOP NOW
         </button>
       </div>
 
       <div className="absolute bottom-4 left-1/2 z-30 flex -translate-x-1/2 gap-3">
-        {" "}
-        {staticBanners.map((_, index) => (
+        {banners.map((_, index) => (
           <button
             key={index}
             onClick={() => setActive(index)}
-            className={`h-2 rounded-full transition-all ${
-              active === index ? "w-10 bg-white" : "w-2 bg-white/60"
+            className={`h-2 rounded-full transition-all duration-300 ${
+              active === index
+                ? "w-10 bg-white"
+                : "w-2 bg-white/60"
             }`}
           />
         ))}
