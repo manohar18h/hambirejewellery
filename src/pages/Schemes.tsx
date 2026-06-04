@@ -6,7 +6,6 @@ import {
   ArrowRight,
   Coins,
   BadgePercent,
-  TrendingUp,
 } from "lucide-react";
 
 const Schemes = () => {
