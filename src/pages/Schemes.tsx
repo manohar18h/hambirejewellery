@@ -10,6 +10,7 @@ import {
 
 const Schemes = () => {
   const navigate = useNavigate();
+  const clickable = "clickable-ui";
 
   const schemes = [
     {
@@ -59,26 +60,35 @@ const Schemes = () => {
               buying.
             </p>
 
-            <button
-            onClick={() => {
-  const element = document.getElementById("scheme-cards");
+          <div className="mt-9 flex gap-4">
+  <button
+    onClick={() => {
+      const element = document.getElementById("scheme-cards");
 
-  if (element) {
-    const y =
-      element.getBoundingClientRect().top +
-      window.pageYOffset -
-      40; // adjust this value
+      if (element) {
+        const y =
+          element.getBoundingClientRect().top +
+          window.pageYOffset -
+          40;
 
-    window.scrollTo({
-      top: y,
-      behavior: "smooth",
-    });
-  }
-}}
-              className="mt-9 rounded-full bg-[#f5c542] px-9 py-4 text-[17px] font-bold text-black shadow-xl transition hover:scale-105"
-            >
-              Explore Schemes
-            </button>
+        window.scrollTo({
+          top: y,
+          behavior: "smooth",
+        });
+      }
+    }}
+    className={`${clickable} rounded-full bg-[#f5c542] px-9 py-4 text-[17px] font-bold text-black shadow-xl`}
+  >
+    Explore Schemes
+  </button>
+
+  <button
+    onClick={() => navigate("/schemes/register?scheme=dashboard")}
+    className={`${clickable} rounded-full border border-[#f5c542] px-9 py-4 text-[17px] font-bold text-[#f5c542] shadow-xl hover:bg-[#f5c542] hover:text-black`}
+  >
+    View Dashboard
+  </button>
+</div>
           </div>
 
           <div className="rounded-[40px] border border-white/10 bg-white/10 p-8 shadow-2xl backdrop-blur-xl">
@@ -125,8 +135,7 @@ const Schemes = () => {
             {schemes.map((scheme) => (
               <div
                 key={scheme.title}
-                className="group rounded-[34px] border border-[#ead7ae] bg-white p-8 shadow-xl transition duration-500 hover:-translate-y-3 hover:shadow-2xl"
-              >
+className={`${clickable} group rounded-[34px] border border-[#ead7ae] bg-white p-8 shadow-xl`}              >
                 <div className="mb-8 flex h-20 w-20 items-center justify-center rounded-3xl bg-[#fff3cf] text-[#b98213]">
                   {scheme.icon}
                 </div>
@@ -160,8 +169,8 @@ onClick={() => {
       behavior: "smooth",
     });
   }, 100);
-}}                  className="mt-9 flex w-full items-center justify-center gap-3 rounded-full bg-black px-6 py-4 text-[16px] font-bold text-white transition group-hover:bg-[#b98213]"
-                >
+}}              
+className={`${clickable} mt-9 flex w-full items-center justify-center gap-3 rounded-full bg-black px-6 py-4 text-[16px] font-bold text-white group-hover:bg-[#b98213]`}                >
                   Explore Scheme <ArrowRight className="h-5 w-5" />
                 </button>
               </div>

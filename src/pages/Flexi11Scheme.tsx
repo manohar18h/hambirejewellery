@@ -36,6 +36,7 @@ const exampleRows = [
 
 const Flexi11Scheme = () => {
   const navigate = useNavigate();
+  const clickable = "clickable-ui";
   const [amount, setAmount] = useState(5000);
   const goldRate = 10000;
 
@@ -73,8 +74,7 @@ const Flexi11Scheme = () => {
 
           <button
             onClick={() => navigate("/schemes/register?scheme=flexi-11")}
-            className="mt-9 rounded-full bg-[#f5c542] px-10 py-4 text-[17px] font-bold text-black"
-          >
+className={`${clickable} mt-9 rounded-full bg-[#f5c542] px-10 py-4 text-[17px] font-bold text-black`}          >
             Join Now
           </button>
         </div>
@@ -131,8 +131,7 @@ const Flexi11Scheme = () => {
               <button
                 key={price}
                 onClick={() => setAmount(price)}
-                className="rounded-[24px] bg-white px-5 py-8 text-[24px] font-bold shadow-lg hover:bg-[#111] hover:text-[#f5c542]"
-              >
+className={`${clickable} rounded-[24px] bg-white px-5 py-8 text-[24px] font-bold shadow-lg hover:bg-[#111] hover:text-[#f5c542]`}              >
                 ₹{price.toLocaleString("en-IN")}
               </button>
             ))}
@@ -337,8 +336,7 @@ const Flexi11Scheme = () => {
 
           <button
             onClick={() => navigate("/schemes/register?scheme=flexi-11")}
-            className="mx-auto mt-12 flex items-center gap-3 rounded-full bg-black px-12 py-4 text-[17px] font-bold text-white"
-          >
+className={`${clickable} mx-auto mt-12 flex items-center gap-3 rounded-full bg-black px-12 py-4 text-[17px] font-bold text-white`}          >
             Join Flexi 11 Plan <ArrowRight className="h-5 w-5" />
           </button>
         </div>

@@ -9,6 +9,7 @@ import PreBookingScheme from "../pages/PreBookingScheme";
 import Flexi11Scheme from "../pages/Flexi11Scheme";
 import QuickBuyScheme from "../pages/QuickBuyScheme";
 import SchemeRegister from "../pages/SchemeRegister";
+import SchemeProfile from "../pages/SchemeProfile";
 
 
 const AppRouter = () => {
@@ -29,6 +30,7 @@ const AppRouter = () => {
 <Route path="/schemes/flexi-11" element={<Flexi11Scheme />} />
 <Route path="/schemes/quick-buy" element={<QuickBuyScheme />} />
 <Route path="/schemes/register" element={<SchemeRegister />} />
+<Route path="/scheme-profile" element={<SchemeProfile />} />
         <Route path="/product/:productSlug" element={<ProductDetailsPage />} />
       </Routes>
     </>

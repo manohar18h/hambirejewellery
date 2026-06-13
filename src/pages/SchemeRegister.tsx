@@ -9,7 +9,6 @@ import {
   Gem,
   Upload,
   Lock,
-  ShieldCheck,
   TrendingUp,
   Coins,
   
@@ -23,7 +22,15 @@ import {
   createPreBookingScheme,
   createFlexi11Scheme,
   createQuickBuyScheme,
+  payFlexiMonth,
+  checkSchemeMobile,
+   checkForgotPasswordMobile,
+  resetSchemePassword,
+  verifyAadhaarOcr,
+  uploadSchemeProof,
 } from "../api/schemeApi";
+
+
 
 const SchemeRegister = () => {
   const overviewRef = useRef<HTMLDivElement | null>(null);
@@ -32,7 +39,12 @@ const flexi11Ref = useRef<HTMLDivElement | null>(null);
 const quickBuyRef = useRef<HTMLDivElement | null>(null);
   const [params] = useSearchParams();
   const scheme = params.get("scheme") || "scheme";
-const [registerData, setRegisterData] = useState({
+  const [isRecaptchaVerified, setIsRecaptchaVerified] = useState(false);
+const isOtpAllowed = isRecaptchaVerified;
+const [aadhaarFile, setAadhaarFile] = useState<File | null>(null);
+const [aadhaarVerified, setAadhaarVerified] = useState(false);
+const [verifyingAadhaar, setVerifyingAadhaar] = useState(false);
+  const [registerData, setRegisterData] = useState({
   name: "",
   village: "",
   phoneNumber: "",
@@ -46,15 +58,16 @@ const [registerData, setRegisterData] = useState({
 
 
 const [dashboard, setDashboard] = useState<any>(null);
-  const [step, setStep] = useState<
-    | "login"
-    | "otp"
-    | "register"
-    | "wallet"
-    | "forgotMobile"
-    | "forgotOtp"
-    | "resetPassword"
-  >("login");
+const [step, setStep] = useState<
+  | "checking"
+  | "login"
+  | "otp"
+  | "register"
+  | "wallet"
+  | "forgotMobile"
+  | "forgotOtp"
+  | "resetPassword"
+>("checking");
 
   type MetalPrices = {
   gold24Rate: number;
@@ -68,7 +81,6 @@ const [dashboard, setDashboard] = useState<any>(null);
   const [otp, setOtp] = useState("");
   const [newPassword, setNewPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
-    const [recaptchaVerifier, setRecaptchaVerifier] = useState<any>(null);
 
 const recaptchaRef = useRef<RecaptchaVerifier | null>(null);
   const [dashboardTab, setDashboardTab] = useState<
@@ -77,8 +89,7 @@ const recaptchaRef = useRef<RecaptchaVerifier | null>(null);
 
   const [confirmationResult, setConfirmationResult] = useState<any>(null);
 
-const [preBookingType, setPreBookingType] = useState("Advance Gold Booking");  const [preBookingAmount, setPreBookingAmount] = useState("");
-  const [oldGoldWeight, setOldGoldWeight] = useState("");
+const [preBookingType, setPreBookingType] = useState("Advance Gold Booking");
   const [holdMonths, setHoldMonths] = useState("5");
 
   const [monthlyAmount, setMonthlyAmount] = useState("5000");
@@ -98,7 +109,6 @@ const [oldPurity, setOldPurity] = useState("");
 const [oldExchangeAmount, setOldExchangeAmount] = useState("");
 
   const goldRate = rates?.gold24Rate || 10000;
-const silverRate = rates?.silver999Rate || 120;
 
 const [showActiveSchemes, setShowActiveSchemes] = useState(false);
 const [selectedScheme, setSelectedScheme] = useState<any>(null);
@@ -113,6 +123,9 @@ const [itemName, setItemName] = useState("");
 
 const formatMoney = (value: any) =>
   `₹${Number(value || 0).toLocaleString("en-IN")}`;
+
+const formatWeight = (value: any) =>
+  `${Number(value || 0).toFixed(3)} gm`;
 
 const formatDate = (value: any) =>
   value ? new Date(value).toLocaleDateString("en-IN") : "-";
@@ -132,27 +145,40 @@ const closeSchemeDetails = () => {
 
 const totalDashboardCards =
   preBookingCards.length + flexi11Cards.length + quickBuyCards.length;
-const [sendingOtp, setSendingOtp] = useState(false);
+
+  const [sendingOtp, setSendingOtp] = useState(false);
+  const [sendingForgotOtp, setSendingForgotOtp] = useState(false);
+  const clickable = "clickable-ui";
 
 useEffect(() => {
   fetchRates();
 }, []);
 
 useEffect(() => {
-  if (step !== "register") return;
+  setIsRecaptchaVerified(false);
+}, [step]);
+
+useEffect(() => {
+  if (step !== "register" && step !== "forgotMobile") return;
 
   const timer = setTimeout(() => {
     const container = document.getElementById("recaptcha-container");
 
     if (!container || recaptchaRef.current) return;
 
-    recaptchaRef.current = new RecaptchaVerifier(
-      auth,
-      "recaptcha-container",
-      {
-        size: "normal",
-      }
-    );
+  recaptchaRef.current = new RecaptchaVerifier(
+  auth,
+  "recaptcha-container",
+  {
+    size: "normal",
+    callback: () => {
+      setIsRecaptchaVerified(true);
+    },
+    "expired-callback": () => {
+      setIsRecaptchaVerified(false);
+    },
+  }
+);
 
     recaptchaRef.current.render();
   }, 500);
@@ -170,6 +196,29 @@ const fetchRates = async () => {
     console.error(error);
   }
 };
+useEffect(() => {
+  const customer = JSON.parse(localStorage.getItem("schemeCustomer") || "{}");
+  const loginTime = Number(localStorage.getItem("schemeLoginTime") || 0);
+
+  if (!customer?.customerId || !loginTime) {
+    setStep("login");
+    return;
+  }
+
+  const sixHours = 6 * 60 * 60 * 1000;
+
+  if (Date.now() - loginTime > sixHours) {
+    logoutSchemeCustomer();
+    return;
+  }
+
+  getSchemeDashboard(customer.customerId)
+    .then((dash) => {
+      setDashboard(dash);
+      setStep("wallet");
+    })
+    .catch(() => logoutSchemeCustomer());
+}, []);
 
 const isAdvanceBooking =
   preBookingType === "Advance Gold Booking" ||
@@ -215,6 +264,8 @@ const quickWeight =
   const schemeTitle = scheme
     .replace("-", " ")
     .replace(/\b\w/g, (char) => char.toUpperCase());
+    const pageTitle =
+  scheme === "dashboard" ? "Scheme Dashboard" : `Join ${schemeTitle}`;
 
 const handleLogin = async () => {
   if (mobile.length !== 10) {
@@ -228,8 +279,8 @@ const handleLogin = async () => {
   try {
     const customer = await loginSchemeCustomer(mobile, password);
 
-    localStorage.setItem("schemeCustomer", JSON.stringify(customer));
-
+localStorage.setItem("schemeCustomer", JSON.stringify(customer));
+localStorage.setItem("schemeLoginTime", Date.now().toString());
     const dash = await getSchemeDashboard(customer.customerId);
     setDashboard(dash);
 
@@ -242,43 +293,139 @@ const handleLogin = async () => {
 const handleRegisterSubmit = async () => {
   if (sendingOtp) return;
 
+  if (!registerData.name.trim()) {
+  return alert("Full Name is required");
+}
+
   if (registerData.phoneNumber.length !== 10) {
     return alert("Enter valid 10 digit mobile number");
   }
 
+    if (!registerData.village.trim()) {
+  return alert("Village / City is required");
+}
+
+if (!registerData.fullAddress.trim()) {
+  return alert("Full Address is required");
+}
+
+  if (!registerData.pincode.trim()) {
+  return alert("Pincode is required");
+}
+
+if (!registerData.aadhaarNumber.trim()) {
+  return alert("Aadhaar Number is required");
+}
+if (registerData.pincode.length !== 6) {
+  return alert("Enter valid 6 digit pincode");
+}
+
+if (!aadhaarFile) {
+  return alert("Please upload Aadhaar document");
+}
+if (!registerData.password.trim()) {
+  return alert("Password is required");
+}
+
   if (registerData.password.length < 6) {
     return alert("Password must be at least 6 characters");
   }
+  if (!confirmPassword.trim()) {
+  return alert("Confirm Password is required");
+}
 
   if (registerData.password !== confirmPassword) {
     return alert("Password and confirm password not matching");
   }
 
+
+
   try {
+
+    if (registerData.aadhaarNumber.length !== 12) {
+  return alert("Enter valid 12 digit Aadhaar number");
+}
+
+if (!registerData.name || !registerData.fullAddress || !registerData.pincode) {
+  return alert("Name, address and pincode are required for Aadhaar verification");
+}
+
+
+    if (!aadhaarFile) {
+  return alert("Please upload Aadhaar document");
+}
+
+if (!aadhaarVerified) {
+  try {
+    setVerifyingAadhaar(true);
+
+    const verify = await verifyAadhaarOcr({
+      file: aadhaarFile,
+      name: registerData.name,
+      aadhaarNumber: registerData.aadhaarNumber,
+    });
+
+    if (!verify.matched) {
+      alert(verify.message);
+      return;
+    }
+
+    setAadhaarVerified(true);
+  } catch (error) {
+    console.error(error);
+    alert("Aadhaar verification failed. Please upload clear Aadhaar image.");
+    return;
+  } finally {
+    setVerifyingAadhaar(false);
+  }
+}
+
     setSendingOtp(true);
 
+    const check = await checkSchemeMobile(registerData.phoneNumber);
+
+    if (!check.allowOtp) {
+      alert(check.message);
+      return;
+    }
+
     if (!recaptchaRef.current) {
-    alert("reCAPTCHA not ready. Please refresh and try again.");
-    return;
-  }
-   const result = await signInWithPhoneNumber(
-  auth,
-  `+91${registerData.phoneNumber}`,
-  recaptchaRef.current!
-);
+      alert("reCAPTCHA not ready. Please refresh and try again.");
+      return;
+    }
+
+    const result = await signInWithPhoneNumber(
+      auth,
+      `+91${registerData.phoneNumber}`,
+      recaptchaRef.current
+    );
 
     setConfirmationResult(result);
     setStep("otp");
   } catch (error: any) {
     console.error(error);
-      if (error.code) {
-    alert("Invalid or expired OTP");
-  } else {
-    alert("OTP verified, but registration failed. Check backend/CORS.");
-  }
+
+    alert(
+      error.response?.data?.message ||
+        error.response?.data?.error ||
+        "Failed to send OTP"
+    );
   } finally {
     setSendingOtp(false);
   }
+};
+
+const logoutSchemeCustomer = () => {
+  localStorage.removeItem("schemeCustomer");
+  localStorage.removeItem("schemeLoginTime");
+   localStorage.removeItem("schemeNotificationError");
+
+   window.location.href = "/";
+
+  window.dispatchEvent(new Event("scheme-notifications-refresh"));
+
+  setDashboard(null);
+  setStep("login");
 };
 
 const handleOtpVerify = async () => {
@@ -293,22 +440,35 @@ const handleOtpVerify = async () => {
   try {
     await confirmationResult.confirm(otp);
 
-    await registerSchemeCustomer(registerData);
+const customer = await registerSchemeCustomer({
+  ...registerData,
+  panNumber: "",
+});
 
+if (aadhaarFile) {
+  await uploadSchemeProof(customer.customerId, "ADDRESS", aadhaarFile);
+}
     alert("Registration successful. Please login.");
 
     setOtp("");
     setConfirmationResult(null);
     setStep("login");
   } catch (error: any) {
-  console.error("OTP/Register error:", error);
+  console.error("OTP/Register error full:", error);
+  console.error("Backend response:", error.response?.data);
 
   if (error.code?.startsWith("auth/")) {
-    alert("Invalid or expired OTP");
+    alert(error.message || "Invalid or expired OTP");
     return;
   }
 
-  alert(error.response?.data?.message || "OTP verified, but customer registration failed.");
+  alert(
+    error.response?.data?.message ||
+      error.response?.data?.error ||
+      error.response?.data ||
+      error.message ||
+      "OTP verified, but customer registration failed."
+  );
 }
 };
 const handleRegisterChange = (
@@ -321,29 +481,91 @@ const handleRegisterChange = (
   }));
 };
 
-  const handleForgotMobile = () => {
-    if (mobile.length !== 10) return alert("Enter valid 10 digit mobile number");
+const handleForgotMobile = async () => {
+  if (sendingForgotOtp) return;
+
+  if (mobile.length !== 10) {
+    return alert("Enter valid 10 digit mobile number");
+  }
+
+  try {
+    setSendingForgotOtp(true);
+
+    const check = await checkForgotPasswordMobile(mobile);
+
+    if (!check.allowOtp) {
+      alert(check.message);
+      return;
+    }
+
+    if (!recaptchaRef.current) {
+      alert("reCAPTCHA not ready");
+      return;
+    }
+
+    const result = await signInWithPhoneNumber(
+      auth,
+      `+91${mobile}`,
+      recaptchaRef.current
+    );
+
+    setConfirmationResult(result);
     setStep("forgotOtp");
-  };
 
-  const handleForgotOtp = () => {
-    if (otp.length !== 6) return alert("Enter valid 6 digit OTP");
+    alert("OTP sent successfully");
+  } catch (error: any) {
+    console.error(error);
+    alert(
+      error.response?.data?.message ||
+        error.response?.data?.error ||
+        "Failed to send OTP"
+    );
+  } finally {
+    setSendingForgotOtp(false);
+  }
+};
+
+
+ const handleForgotOtp = async () => {
+  try {
+    await confirmationResult.confirm(otp);
+
     setStep("resetPassword");
-  };
+  } catch (error) {
+    console.error(error);
+    alert("Invalid OTP");
+  }
+};
 
-  const handleResetPassword = () => {
-    if (newPassword.length < 6)
-      return alert("Password must be at least 6 characters");
-    if (newPassword !== confirmPassword)
-      return alert("Password and confirm password not matching");
+  const handleResetPassword = async () => {
+  if (newPassword.length < 6) {
+    return alert("Password must be at least 6 characters");
+  }
 
-    alert("Password reset successful");
+  if (newPassword !== confirmPassword) {
+    return alert("Password and confirm password not matching");
+  }
+
+  try {
+    await resetSchemePassword(mobile, newPassword);
+
+    alert("Password reset successful. Please login.");
+
     setPassword("");
     setOtp("");
     setNewPassword("");
     setConfirmPassword("");
+    setConfirmationResult(null);
     setStep("login");
-  };
+  } catch (error: any) {
+    console.error(error);
+    alert(
+      error.response?.data?.message ||
+        error.response?.data?.error ||
+        "Password reset failed"
+    );
+  }
+};
 
   const refreshDashboard = async () => {
   const customer = JSON.parse(localStorage.getItem("schemeCustomer") || "{}");
@@ -399,45 +621,26 @@ const handleCreatePreBooking = async () => {
 
     alert("Pre-booking activated successfully");
     setDashboardTab("overview");
-  } catch (error) {
-    console.error(error);
-    alert("Pre-booking failed");
-  }
+  } catch (error: any) {
+  const message =
+    error.response?.data?.message ||
+    error.response?.data?.error ||
+    "Please verify Aadhaar before activating scheme.";
+
+  localStorage.setItem("schemeNotificationError", message);
+
+  window.dispatchEvent(
+    new CustomEvent("scheme-notifications-refresh", {
+      detail: { type: "AADHAAR_REQUIRED", message },
+    })
+  );
+
+  alert(message);
+}
 };
 
 
-const getBenefitText = (months: number) => {
-  if (!months) return "-";
-  if (months >= 11) return "Full Eligible VA Benefit";
-  return `${months}% VA Benefit`;
-};
 
-const getMaturityDate = (createdAt: string, months: number) => {
-  if (!createdAt || !months) return "-";
-
-  const date = new Date(createdAt);
-  date.setMonth(date.getMonth() + months);
-
-  return date.toLocaleDateString("en-IN");
-};
-
-const getRemainingText = (createdAt: string, months: number) => {
-  if (!createdAt || !months) return "-";
-
-  const endDate = new Date(createdAt);
-  endDate.setMonth(endDate.getMonth() + months);
-
-  const today = new Date();
-  const diff = endDate.getTime() - today.getTime();
-
-  if (diff <= 0) return "Matured";
-
-  const days = Math.ceil(diff / (1000 * 60 * 60 * 24));
-  const remainingMonths = Math.floor(days / 30);
-  const remainingDays = days % 30;
-
-  return `${remainingMonths} Months ${remainingDays} Days`;
-};
 
 
 const handleCreateFlexi11 = async () => {
@@ -457,10 +660,22 @@ const handleCreateFlexi11 = async () => {
     await refreshDashboard();
     alert("Flexi 11 activated successfully");
     setDashboardTab("overview");
-  } catch (error) {
-    console.error(error);
-    alert("Flexi 11 failed");
-  }
+  }catch (error: any) {
+  const message =
+    error.response?.data?.message ||
+    error.response?.data?.error ||
+    "Please verify Aadhaar before activating scheme.";
+
+  localStorage.setItem("schemeNotificationError", message);
+
+  window.dispatchEvent(
+    new CustomEvent("scheme-notifications-refresh", {
+      detail: { type: "AADHAAR_REQUIRED", message },
+    })
+  );
+
+  alert(message);
+}
 };
 
 const handleCreateQuickBuy = async () => {
@@ -487,15 +702,20 @@ const handleCreateQuickBuy = async () => {
     alert("Quick buy saved successfully");
     setDashboardTab("overview");
   }  catch (error: any) {
-  console.error("Quick buy error full:", error);
-  console.error("Backend response:", error.response?.data);
-
-  alert(
+  const message =
     error.response?.data?.message ||
     error.response?.data?.error ||
-    JSON.stringify(error.response?.data) ||
-    "Quick buy failed"
+    "Please verify Aadhaar before activating scheme.";
+
+  localStorage.setItem("schemeNotificationError", message);
+
+  window.dispatchEvent(
+    new CustomEvent("scheme-notifications-refresh", {
+      detail: { type: "AADHAAR_REQUIRED", message },
+    })
   );
+
+  alert(message);
 }
 };
 
@@ -506,7 +726,7 @@ const handleCreateQuickBuy = async () => {
       </p>
 
       <h1 className="mt-4 font-serif text-[42px] leading-tight">
-        Join {schemeTitle}
+        {pageTitle}
       </h1>
 
       <p className="mt-5 text-[17px] leading-8 text-white/70">
@@ -560,6 +780,88 @@ const handleCreateQuickBuy = async () => {
   }, 150);
 };
 
+const scrollToSection = (id: string) => {
+  const element = document.getElementById(id);
+
+  if (element) {
+    const y =
+      element.getBoundingClientRect().top +
+      window.pageYOffset -
+      40;
+
+    window.scrollTo({
+      top: y,
+      behavior: "smooth",
+    });
+  }
+};
+
+const handlePayFlexiMonth = async (scheme: any) => {
+  const ratePerGram = goldRate / 10;
+  const paidAmount = Number(scheme.monthlyAmount || 0);
+
+  if (!paidAmount || !ratePerGram) {
+    return alert("Invalid amount or gold rate");
+  }
+
+  try {
+    await payFlexiMonth({
+      schemeId: scheme.schemeId,
+      paidAmount,
+      ratePerGram,
+      paymentMethod: "DIRECT_TEST",
+    });
+
+    await refreshDashboard();
+    alert("Payment saved successfully");
+  } catch (error: any) {
+    console.error(error);
+    alert(error.response?.data?.message || "Payment failed");
+  }
+};
+
+const handleSchemeTabClick = (
+  tab: "overview" | "preBooking" | "flexi11" | "quickBuy",
+  sectionId: string
+) => {
+  setDashboardTab(tab);
+
+  if (showActiveSchemes) {
+    setShowActiveSchemes(false);
+
+    setTimeout(() => {
+      scrollToSection(sectionId);
+    }, 3000);
+  } else {
+    setTimeout(() => {
+      scrollToSection(sectionId);
+    }, 100);
+  }
+};
+
+const calculatePreBookingAmount = (weight: string) => {
+  const perGram = selectedRate ? selectedRate / 10 : 0;
+  return Number(weight || 0) * perGram;
+};
+
+useEffect(() => {
+  if (!isAdvanceBooking || !metalWeight) return;
+
+  const perGram = selectedRate ? selectedRate / 10 : 0;
+  const amount = Number(metalWeight || 0) * perGram;
+
+  setMetalAmount(amount ? amount.toFixed(0) : "");
+}, [preBookingType, selectedRate]);
+
+
+if (step === "checking") {
+  return (
+    <div className="min-h-screen bg-[#fbf7ef] p-10 text-center text-[24px] font-bold">
+      Loading dashboard...
+    </div>
+  );
+}
+
   return (
     <div className="min-h-screen bg-[#fbf7ef] px-8 py-14">
       {step !== "wallet" ? (
@@ -611,7 +913,7 @@ const handleCreateQuickBuy = async () => {
                 <div className="mt-4 flex justify-end">
                   <button
                     onClick={() => setStep("forgotMobile")}
-                    className="text-[15px] font-bold text-[#b98213] hover:underline"
+  className="cursor-pointer text-[15px] font-bold text-[#b98213] transition-all duration-200 hover:scale-105 hover:underline active:scale-95"
                   >
                     Forgot Password?
                   </button>
@@ -619,15 +921,13 @@ const handleCreateQuickBuy = async () => {
 
                 <button
                   onClick={handleLogin}
-                  className="mt-8 flex w-full items-center justify-center gap-3 rounded-full bg-black px-8 py-4 text-[17px] font-bold text-white"
-                >
+className={`${clickable} mt-8 flex w-full items-center justify-center gap-3 rounded-full bg-black px-8 py-4 text-[17px] font-bold text-white`}                >
                   Login & Open Wallet <ArrowRight className="h-5 w-5" />
                 </button>
 
                 <button
                   onClick={() => setStep("register")}
-                  className="mt-4 flex w-full items-center justify-center gap-3 rounded-full border border-[#b98213] px-8 py-4 text-[17px] font-bold text-[#b98213]"
-                >
+className={`${clickable} mt-4 flex w-full items-center justify-center gap-3 rounded-full border border-[#b98213] px-8 py-4 text-[17px] font-bold text-[#b98213]`}                >
                   New Customer Registration <UserPlus className="h-5 w-5" />
                 </button>
               </>
@@ -652,12 +952,12 @@ const handleCreateQuickBuy = async () => {
   ["Full Address", "fullAddress"],
   ["Pincode", "pincode"],
   ["Aadhaar Number", "aadhaarNumber"],
-  ["PAN Number", "panNumber"],
 ].map(([label, field]) => (
   <div key={field}>
-    <label className="mb-2 block font-semibold text-gray-700">
-      {label}
-    </label>
+   <label className="mb-2 block font-semibold text-gray-700">
+  {label}
+  {field !== "emailId" && <span className="text-red-600"> *</span>}
+</label>
 
     <input
       value={registerData[field as keyof typeof registerData]}
@@ -685,9 +985,9 @@ const handleCreateQuickBuy = async () => {
   </div>
 ))}
 <div>
-  <label className="mb-2 block font-semibold text-gray-700">
-    Password
-  </label>
+ <label className="mb-2 block font-semibold text-gray-700">
+  Password <span className="text-red-600">*</span>
+</label>
   <input
     type="password"
     value={registerData.password}
@@ -700,8 +1000,8 @@ const handleCreateQuickBuy = async () => {
 
                   <div>
                     <label className="mb-2 block font-semibold text-gray-700">
-                      Confirm Password
-                    </label>
+  Confirm Password <span className="text-red-600">*</span>
+</label>
                     <input
                       type="password"
                       value={confirmPassword}
@@ -711,32 +1011,55 @@ const handleCreateQuickBuy = async () => {
                   </div>
                 </div>
 
-                <div className="mt-8 grid grid-cols-2 gap-6">
-                  {["Address Proof", "ID Document"].map((label) => (
-                    <div key={label}>
-                      <label className="mb-2 block font-semibold text-gray-700">
-                        {label}
-                      </label>
-                      <div className="flex items-center gap-3 rounded-xl border border-dashed border-gray-300 px-4 py-4">
-                        <Upload className="h-5 w-5 text-[#b98213]" />
-                        <input type="file" className="w-full text-sm" />
-                      </div>
-                    </div>
-                  ))}
-                </div>
+                <div className="mt-8">
+<label className="mb-2 block font-semibold text-gray-700">
+  Aadhaar Document <span className="text-red-600">*</span>
+</label>
+  <div className="flex items-center gap-3 rounded-xl border border-dashed border-gray-300 px-4 py-4">
+    <Upload className="h-5 w-5 text-[#b98213]" />
+
+    <input
+      type="file"
+      accept="image/*"
+      className="w-full text-sm"
+      onChange={(e) => {
+        setAadhaarFile(e.target.files?.[0] || null);
+        setAadhaarVerified(false);
+      }}
+    />
+  </div>
+
+  <p className="mt-2 text-sm text-gray-500">
+    Upload Aadhaar image from gallery or take photo using camera.
+  </p>
+
+  {aadhaarVerified && (
+    <p className="mt-2 font-bold text-green-600">
+      Aadhaar verified successfully
+    </p>
+  )}
+</div>
+
+               
 
 <div id="recaptcha-container" className="mt-6 flex justify-center"></div>
             <button
-  disabled={sendingOtp}
+   disabled={sendingOtp || verifyingAadhaar || !isRecaptchaVerified}
   onClick={handleRegisterSubmit}
-className="mt-10 w-full cursor-pointer rounded-full bg-black px-8 py-4 text-[17px] font-bold text-white transition-all duration-200 hover:bg-[#1f1f1f] active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-60">
-  {sendingOtp ? "Sending OTP..." : "Submit & Send OTP"}
+  className={`
+    mt-10 w-full rounded-full bg-black px-8 py-4 text-[17px] font-bold text-white
+    ${isOtpAllowed ? clickable : "cursor-not-allowed opacity-60"}
+  `}>
+      {verifyingAadhaar
+  ? "Verifying Aadhaar..."
+  : sendingOtp
+  ? "Sending OTP..."
+  : "Submit & Send OTP"}
 </button>
 
                 <button
                   onClick={() => setStep("login")}
-                  className="mt-4 w-full rounded-full border border-gray-300 px-8 py-4 text-[16px] font-bold text-gray-700"
-                >
+className={`${clickable} mt-4 w-full rounded-full border border-gray-300 px-8 py-4 text-[16px] font-bold text-gray-700`}                >
                   Already Registered? Login
                 </button>
               </>
@@ -762,8 +1085,7 @@ className="mt-10 w-full cursor-pointer rounded-full bg-black px-8 py-4 text-[17p
 
                 <button
                   onClick={handleOtpVerify}
-                  className="mt-10 w-full rounded-full bg-black px-8 py-4 text-[17px] font-bold text-white"
-                >
+className={`${clickable} mt-10 w-full rounded-full bg-black px-8 py-4 text-[17px] font-bold text-white`}                >
                   Verify & Open Wallet
                 </button>
               </>
@@ -788,28 +1110,32 @@ className="mt-10 w-full cursor-pointer rounded-full bg-black px-8 py-4 text-[17p
                   placeholder="Enter registered mobile number"
                   className="mt-10 w-full rounded-xl border border-gray-300 px-4 py-4 outline-none focus:border-[#b98213]"
                 />
+                <div id="recaptcha-container" className="mt-6 flex justify-center"></div>
 
-                <button
-                  onClick={handleForgotMobile}
-                  className="mt-10 w-full rounded-full bg-black px-8 py-4 text-[17px] font-bold text-white"
-                >
-                  Send OTP
-                </button>
+               <button
+  disabled={sendingForgotOtp || !isRecaptchaVerified}
+  onClick={handleForgotMobile}
+ className={`
+    mt-10 w-full rounded-full bg-black px-8 py-4 text-[17px] font-bold text-white
+    ${isOtpAllowed ? clickable : "cursor-not-allowed opacity-60"}
+  `}>
+  {sendingForgotOtp ? "Sending OTP..." : "Send OTP"}
+</button>
 
                 <button
                   onClick={() => setStep("login")}
-                  className="mt-4 w-full rounded-full border border-gray-300 px-8 py-4 text-[16px] font-bold text-gray-700"
-                >
-                  Back to Login
+className={`${clickable} mt-4 w-full rounded-full border border-gray-300 px-8 py-4 text-[16px] font-bold text-gray-700`}
+               >
+                    Back to Login
                 </button>
               </>
             )}
 
             {step === "forgotOtp" && (
               <>
-                <p className="text-[14px] font-bold uppercase tracking-[4px] text-[#b98213]">
-                  Verify OTP
-                </p>
+<p className="text-[14px] font-bold uppercase tracking-[4px] text-[#b98213]">
+  Verify OTP
+</p>                 
 
                 <h2 className="mt-3 font-serif text-[44px]">
                   Enter OTP Sent to Mobile
@@ -825,8 +1151,7 @@ className="mt-10 w-full cursor-pointer rounded-full bg-black px-8 py-4 text-[17p
 
                 <button
                   onClick={handleForgotOtp}
-                  className="mt-10 w-full rounded-full bg-black px-8 py-4 text-[17px] font-bold text-white"
-                >
+className={`${clickable} mt-10 w-full rounded-full bg-black px-8 py-4 text-[17px] font-bold text-white`}                >
                   Verify OTP
                 </button>
               </>
@@ -862,8 +1187,7 @@ className="mt-10 w-full cursor-pointer rounded-full bg-black px-8 py-4 text-[17p
 
                 <button
                   onClick={handleResetPassword}
-                  className="mt-10 w-full rounded-full bg-black px-8 py-4 text-[17px] font-bold text-white"
-                >
+className={`${clickable} mt-10 w-full rounded-full bg-black px-8 py-4 text-[17px] font-bold text-white`}                >
                   Reset Password
                 </button>
               </>
@@ -885,40 +1209,71 @@ className="mt-10 w-full cursor-pointer rounded-full bg-black px-8 py-4 text-[17p
               </div>
 
               <button
-                onClick={() => setStep("login")}
-                className="rounded-full border border-gray-300 px-7 py-3 font-bold text-gray-700"
-              >
+                onClick={logoutSchemeCustomer}
+className={`${clickable} rounded-full border border-gray-300 px-7 py-3 font-bold text-gray-700`}              >
                 Logout
               </button>
             </div>
 
-            <div className="mt-8 grid grid-cols-4 gap-6">
-             {[
-  ["Active Schemes", dashboard?.activeSchemes || 0],
-  [
-    "Gold Wallet",
-    `${dashboard?.goldWallet?.toFixed(3) || "0.000"} gm`,
-  ],
-  [
-    "Silver Wallet",
-    `${dashboard?.silverWallet?.toFixed(3) || "0.000"} gm`,
-  ],
-  [
-    "Total Savings",
-    `₹${dashboard?.totalSavings?.toLocaleString("en-IN") || 0}`,
-  ],
-].map(([title, value]) => (
-                <div
-                  key={title}
-                  className="rounded-[24px] bg-[#fbf7ef] p-6 text-center shadow"
-                >
-                  <p className="text-gray-600">{title}</p>
-                  <h3 className="mt-3 text-[28px] font-bold text-[#b98213]">
-                    {value}
-                  </h3>
-                </div>
-              ))}
-            </div>
+        <div className="mt-8 grid grid-cols-1 gap-6 md:grid-cols-2 xl:grid-cols-6">
+  {[
+    {
+      title: "Active Schemes",
+      value: dashboard?.activeSchemes || 0,
+      used: null,
+    },
+    {
+      title: "Gold Wallet",
+      value: formatWeight(dashboard?.goldWallet),
+      used: `Used: ${formatWeight(dashboard?.goldUsedWeight)}`,
+    },
+    {
+      title: "Old Exchange Gold",
+      value: formatWeight(dashboard?.oldExchangeGoldPurityWeight),
+      used: "Purity weight",
+    },
+    {
+      title: "Kamal Silver",
+      value: formatWeight(dashboard?.kamalSilverWallet),
+      used: `Used: ${formatWeight(dashboard?.kamalSilverUsedWeight)}`,
+    },
+    {
+      title: "Swastik Silver",
+      value: formatWeight(dashboard?.swastikSilverWallet),
+      used: `Used: ${formatWeight(dashboard?.swastikSilverUsedWeight)}`,
+    },
+    {
+  title: "Total Amount",
+  value: formatMoney(dashboard?.totalSavings),
+  used: "Scheme value",
+},
+  ].map((item) => (
+    <div
+      key={item.title}
+    className={`rounded-[24px] p-6 text-center shadow ${
+  item.title === "Active Schemes"
+    ? "bg-[#111] text-white"
+    : "bg-[#fbf7ef]"
+}`}
+    >
+      <p className={item.title === "Active Schemes" ? "text-white/60" : "text-gray-600"}>
+        {item.title}
+      </p>
+
+      <h3 className={`mt-3 text-[26px] font-bold ${
+        item.title === "Active Schemes" ? "text-[#f5c542]" : "text-[#b98213]"
+      }`}>
+        {item.value}
+      </h3>
+
+      {item.used && (
+        <p className={item.title === "Total Savings" ? "mt-2 text-[14px] text-white/50" : "mt-2 text-[14px] font-semibold text-gray-500"}>
+          {item.used}
+        </p>
+      )}
+    </div>
+  ))}
+</div>
 
             <div className="mt-10 grid grid-cols-4 gap-4">
               {[
@@ -929,7 +1284,7 @@ className="mt-10 w-full cursor-pointer rounded-full bg-black px-8 py-4 text-[17p
               ].map(([key, label]) => (
                 <button
                   key={key}
-onClick={() => handleDashboardTabClick(key as any)}                  className={`rounded-full px-6 py-3 font-bold ${
+onClick={() => handleDashboardTabClick(key as any)}  className={`${clickable} rounded-full px-6 py-3 font-bold ${    
                     dashboardTab === key
                       ? "bg-[#f5c542] text-black"
                       : "bg-[#fbf7ef] text-black"
@@ -943,8 +1298,7 @@ onClick={() => handleDashboardTabClick(key as any)}                  className={
             <div className="mt-8 overflow-hidden rounded-[30px] border border-[#f5c542]/40 bg-[#111] shadow-2xl">
   <button
     onClick={() => setShowActiveSchemes((prev) => !prev)}
-    className="flex w-full items-center justify-between px-8 py-6 text-left"
-  >
+className={`${clickable} flex w-full items-center justify-between px-8 py-6 text-left`}  >
     <div>
       <p className="text-[13px] font-bold uppercase tracking-[4px] text-[#f5c542]">
 View All Schemes & Transactions
@@ -994,8 +1348,19 @@ Check Pre-Booking, Flexi 11 and Quick Buy transactions in one place.      </p>
     return (
       <div
         key={`pre-${item.schemeId}`}
-        className="rounded-[26px] bg-white/[0.07] p-6 text-white shadow-xl"
-      >
+  className="
+    cursor-pointer
+    transition-all
+    duration-300
+    hover:-translate-y-1
+    hover:shadow-2xl
+    active:scale-[0.98]
+    rounded-[26px]
+    bg-white/[0.07]
+    p-6
+    text-white
+    shadow-xl
+  "      >
         <div className="flex items-start justify-between">
           <div>
             <p className="text-sm font-bold text-[#f5c542]">
@@ -1066,8 +1431,7 @@ Check Pre-Booking, Flexi 11 and Quick Buy transactions in one place.      </p>
 
         <button
           onClick={() => openSchemeDetails("PRE_BOOKING", item)}
-          className="mt-5 w-full rounded-full bg-[#f5c542] px-5 py-3 font-bold text-black"
-        >
+className={`${clickable} mt-5 w-full rounded-full bg-[#f5c542] px-5 py-3 font-bold text-black`}        >
           View Scheme Details
         </button>
       </div>
@@ -1077,8 +1441,19 @@ Check Pre-Booking, Flexi 11 and Quick Buy transactions in one place.      </p>
   {flexi11Cards.map((item: any, index: number) => (
     <div
       key={`flexi-${item.schemeId}`}
-      className="rounded-[26px] bg-white/[0.07] p-6 text-white shadow-xl"
-    >
+  className="
+    cursor-pointer
+    transition-all
+    duration-300
+    hover:-translate-y-1
+    hover:shadow-2xl
+    active:scale-[0.98]
+    rounded-[26px]
+    bg-white/[0.07]
+    p-6
+    text-white
+    shadow-xl
+  "    >
       <div className="flex items-start justify-between">
         <div>
           <p className="text-sm font-bold text-[#f5c542]">
@@ -1129,15 +1504,21 @@ Check Pre-Booking, Flexi 11 and Quick Buy transactions in one place.      </p>
       </div>
 
       <div className="mt-5 grid grid-cols-2 gap-3">
-        {item.showPayButton && (
-          <button className="rounded-full bg-green-500 px-5 py-3 font-bold text-white">
-            Pay Now
-          </button>
-        )}
+    {item.showPayButton === true && (
+ <button
+  type="button"
+  onClick={(e) => {
+    e.preventDefault();
+    handlePayFlexiMonth(item);
+  }}
+className={`${clickable} mt-5 w-full rounded-full bg-[#f5c542] px-5 py-3 font-bold text-black`}>
+  Pay Now
+</button>
+)}
 
         <button
           onClick={() => openSchemeDetails("FLEXI_11", item)}
-          className={`rounded-full bg-[#f5c542] px-5 py-3 font-bold text-black ${
+          className={`${clickable} rounded-full bg-[#f5c542] px-5 py-3 font-bold text-black ${
             item.showPayButton ? "" : "col-span-2"
           }`}
         >
@@ -1150,8 +1531,19 @@ Check Pre-Booking, Flexi 11 and Quick Buy transactions in one place.      </p>
   {quickBuyCards.map((item: any) => (
     <div
       key={`quick-${item.metalName}`}
-      className="rounded-[26px] bg-white/[0.07] p-6 text-white shadow-xl"
-    >
+  className="
+    cursor-pointer
+    transition-all
+    duration-300
+    hover:-translate-y-1
+    hover:shadow-2xl
+    active:scale-[0.98]
+    rounded-[26px]
+    bg-white/[0.07]
+    p-6
+    text-white
+    shadow-xl
+  "    >
       <div className="flex items-start justify-between">
         <div>
           <p className="text-sm font-bold text-[#f5c542]">
@@ -1191,8 +1583,7 @@ Check Pre-Booking, Flexi 11 and Quick Buy transactions in one place.      </p>
 
       <button
         onClick={() => openSchemeDetails("QUICK_BUY", item)}
-        className="mt-5 w-full rounded-full bg-[#f5c542] px-5 py-3 font-bold text-black"
-      >
+className={`${clickable} mt-5 w-full rounded-full bg-[#f5c542] px-5 py-3 font-bold text-black`}      >
         View All Transactions
       </button>
     </div>
@@ -1207,7 +1598,7 @@ Check Pre-Booking, Flexi 11 and Quick Buy transactions in one place.      </p>
 
 
             {dashboardTab === "overview" && (
-              <div ref={overviewRef} className="mt-10 grid grid-cols-3 gap-6">
+              <div  id="overview-section" className="mt-10 grid grid-cols-3 gap-6">
                 {[
                   {
                     title: "Pre-Booking & Exchange",
@@ -1238,19 +1629,29 @@ Check Pre-Booking, Flexi 11 and Quick Buy transactions in one place.      </p>
                     <p className="mt-4 text-[16px] leading-7 text-white/70">
                       {item.desc}
                     </p>
-                    <button
-                      onClick={() => setDashboardTab(item.tab as any)}
-                      className="mt-7 w-full rounded-full bg-[#f5c542] px-6 py-3 font-bold text-black"
-                    >
-                      {item.action}
-                    </button>
+                   <button
+  onClick={() =>
+    handleSchemeTabClick(
+      item.tab as "overview" | "preBooking" | "flexi11" | "quickBuy",
+      item.tab === "overview"
+        ? "overview-section"
+        : item.tab === "preBooking"
+        ? "pre-booking-section"
+        : item.tab === "flexi11"
+        ? "flexi11-section"
+        : "quick-buy-section"
+    )
+  }
+className={`${clickable} mt-5 w-full rounded-full bg-[#f5c542] px-5 py-3 font-bold text-black`}>
+  {item.action}
+</button>
                   </div>
                 ))}
               </div>
             )}
 
             {dashboardTab === "preBooking" && (
-  <div ref={preBookingRef}  className="mt-10 rounded-[34px] bg-[#111] p-8 text-white shadow-2xl">
+  <div id="pre-booking-section"  className="mt-10 rounded-[34px] bg-[#111] p-8 text-white shadow-2xl">
     <p className="text-[14px] font-bold uppercase tracking-[4px] text-[#f5c542]">
       Pre-Booking & Exchange
     </p>
@@ -1321,26 +1722,30 @@ Check Pre-Booking, Flexi 11 and Quick Buy transactions in one place.      </p>
         <>
           <div>
             <label className="mb-2 block text-white/70">Metal Weight</label>
-            <input
-              value={metalWeight}
-              onChange={(e) =>
-                setMetalWeight(e.target.value.replace(/[^0-9.]/g, ""))
-              }
-              placeholder="Enter metal weight in grams"
-              className="w-full rounded-xl border border-white/20 bg-black/40 px-4 py-4 outline-none"
-            />
+          <input
+  value={metalWeight}
+  onChange={(e) => {
+    const value = e.target.value.replace(/[^0-9.]/g, "");
+    setMetalWeight(value);
+
+    const amount = calculatePreBookingAmount(value);
+    setMetalAmount(amount ? amount.toFixed(0) : "");
+  }}
+  placeholder="Enter metal weight in grams"
+  className="w-full rounded-xl border border-white/20 bg-black/40 px-4 py-4 outline-none"
+/>
           </div>
 
           <div>
             <label className="mb-2 block text-white/70">Metal Amount</label>
-            <input
-              value={metalAmount}
-              onChange={(e) =>
-                setMetalAmount(e.target.value.replace(/\D/g, ""))
-              }
-              placeholder="Enter amount for metal"
-              className="w-full rounded-xl border border-white/20 bg-black/40 px-4 py-4 outline-none"
-            />
+           <input
+  value={metalAmount}
+  onChange={(e) =>
+    setMetalAmount(e.target.value.replace(/\D/g, ""))
+  }
+  placeholder="Enter amount for metal"
+  className="w-full rounded-xl border border-white/20 bg-black/40 px-4 py-4 outline-none"
+/>
           </div>
         </>
       )}
@@ -1404,8 +1809,7 @@ Check Pre-Booking, Flexi 11 and Quick Buy transactions in one place.      </p>
 
  <button
   onClick={handleCreatePreBooking}
-  className="mt-8 w-full rounded-full bg-[#f5c542] px-8 py-4 text-[17px] font-bold text-black"
->
+className={`${clickable} mt-5 w-full rounded-full bg-[#f5c542] px-5 py-3 font-bold text-black`}>
   Pay / Submit Old Gold & Activate Pre-Booking
 </button>
   </div>
@@ -1414,7 +1818,7 @@ Check Pre-Booking, Flexi 11 and Quick Buy transactions in one place.      </p>
 
 
             {dashboardTab === "flexi11" && (
-              <div ref={flexi11Ref} className="mt-10 rounded-[34px] bg-[#111] p-8 text-white shadow-2xl">
+              <div id="flexi11-section" className="mt-10 rounded-[34px] bg-[#111] p-8 text-white shadow-2xl">
                 <div className="flex items-start justify-between">
   <div>
     <p className="text-[14px] font-bold uppercase tracking-[4px] text-[#f5c542]">
@@ -1450,8 +1854,7 @@ Check Pre-Booking, Flexi 11 and Quick Buy transactions in one place.      </p>
     <button
       key={value}
       onClick={() => setMonthlyAmount(String(value))}
-      className={`rounded-2xl border border-[#f5c542]/30 px-5 py-6 text-[22px] font-bold transition-all duration-200 ${
-        monthlyAmount === String(value)
+className={`${clickable} rounded-2xl border border-[#f5c542]/30 px-5 py-6 text-[22px] font-bold ${        monthlyAmount === String(value)
           ? "bg-[#f5c542] text-black shadow-lg"
           : "bg-[#fff8e6] text-black hover:bg-[#fde7a1]"
       }`}
@@ -1490,18 +1893,18 @@ Check Pre-Booking, Flexi 11 and Quick Buy transactions in one place.      </p>
 
                 <div className="mt-10 overflow-hidden rounded-2xl border border-[#ead7ae]">
                   <table className="w-full border-collapse text-center">
-                    <thead className="bg-[#f5c542] text-black text-white">
-                      <tr>
-                        <th className="p-4">Month</th>
-                        <th className="p-4">Due Date</th>
-                        <th className="p-4">Amount</th>
-                        <th className="p-4">Gold Rate</th>
-                        <th className="p-4">Gold Grams</th>
-                        <th className="p-4">Status</th>
-                      </tr>
-                    </thead>
+  <thead className="bg-[#f5c542] text-black">
+    <tr>
+      <th className="p-4">Month</th>
+      <th className="p-4">Due Date</th>
+      <th className="p-4">Amount</th>
+      <th className="p-4">Gold Rate</th>
+      <th className="p-4">Gold Grams</th>
+      <th className="p-4">Status</th>
+    </tr>
+  </thead>
 
-                   <tbody className="bg-black/20">
+  <tbody className="bg-black/20">
   {Array.from({ length: 11 }).map((_, index) => {
     const isFirstMonth = index === 0;
 const grams = Number(monthlyAmount || 0) / (goldRate / 10);
@@ -1547,15 +1950,14 @@ const grams = Number(monthlyAmount || 0) / (goldRate / 10);
 
          <button
   onClick={handleCreateFlexi11}
-  className="mt-8 w-full rounded-full bg-[#f5c542] px-8 py-4 text-[17px] font-bold text-black hover:opacity-90"
->
+className={`${clickable} mt-5 w-full rounded-full bg-[#f5c542] px-5 py-3 font-bold text-black`}>
   Pay First Month & Activate Flexi 11
 </button>
               </div>
             )}
 
             {dashboardTab === "quickBuy" && (
-              <div ref={quickBuyRef} className="mt-10 rounded-[34px] bg-[#070707] p-8 text-white shadow-2xl">
+              <div id="quick-buy-section" className="mt-10 rounded-[34px] bg-[#070707] p-8 text-white shadow-2xl">
                 <p className="text-[14px] font-bold uppercase tracking-[4px] text-[#f5c542]">
                   Quick Buy Gold & Silver
                 </p>
@@ -1567,7 +1969,7 @@ const grams = Number(monthlyAmount || 0) / (goldRate / 10);
                 <div className="mt-8 grid grid-cols-3 gap-6">
   <button
     onClick={() => setQuickMetal("Gold")}
-    className={`rounded-2xl px-6 py-5 text-[22px] font-bold ${
+className={`${clickable} rounded-2xl px-6 py-5 text-[22px] font-bold ${
       quickMetal === "Gold"
         ? "bg-[#f5c542] text-black"
         : "bg-white/10 text-white"
@@ -1578,7 +1980,7 @@ Gold ₹{((rates?.gold24Rate || 0) / 10).toFixed(0)}/gm
 
   <button
     onClick={() => setQuickMetal("Kamal Silver")}
-    className={`rounded-2xl px-6 py-5 text-[22px] font-bold ${
+    className={`${clickable} rounded-2xl px-6 py-5 text-[22px] font-bold ${
       quickMetal === "Kamal Silver"
         ? "bg-[#f5c542] text-black"
         : "bg-white/10 text-white"
@@ -1589,7 +1991,7 @@ Kamal Silver ₹{((rates?.silver999Rate || 0) / 10).toFixed(2)}/gm
 
   <button
     onClick={() => setQuickMetal("Swastik Silver")}
-    className={`rounded-2xl px-6 py-5 text-[22px] font-bold ${
+    className={`${clickable} rounded-2xl px-6 py-5 text-[22px] font-bold ${
       quickMetal === "Swastik Silver"
         ? "bg-[#f5c542] text-black"
         : "bg-white/10 text-white"
@@ -1618,8 +2020,7 @@ Swastik Silver ₹{((rates?.silver995Rate || 0) / 10).toFixed(2)}/gm
                         <button
                           key={value}
                           onClick={() => setQuickAmount(String(value))}
-                          className="rounded-xl bg-white/10 py-3 font-bold hover:bg-[#f5c542] hover:text-black"
-                        >
+className={`${clickable} rounded-xl bg-white/10 py-3 font-bold hover:bg-[#f5c542] hover:text-black`}                        >
                           ₹{value}
                         </button>
                       ))}
@@ -1637,9 +2038,9 @@ Swastik Silver ₹{((rates?.silver995Rate || 0) / 10).toFixed(2)}/gm
                   </div>
                 </div>
 
-               <button
+             <button
   onClick={handleCreateQuickBuy}
-  className="mt-8 w-full rounded-full bg-[#f5c542] px-8 py-4 text-[17px] font-bold text-black"
+ className={`${clickable} mt-5 w-full rounded-full bg-[#f5c542] px-5 py-3 font-bold text-black`}
 >
   Pay Now & Save {quickMetal} in Wallet
 </button>
@@ -1719,7 +2120,7 @@ Swastik Silver ₹{((rates?.silver995Rate || 0) / 10).toFixed(2)}/gm
         </>
       )}
 
-      {selectedSchemeType === "FLEXI_11" && (
+      {selectedSchemeType === "FLEXI_11" && selectedScheme && (
         <>
           <p className="text-[13px] font-bold uppercase tracking-[4px] text-[#b98213]">
             Flexi 11 Scheme Details
@@ -1750,61 +2151,79 @@ Swastik Silver ₹{((rates?.silver995Rate || 0) / 10).toFixed(2)}/gm
           </div>
 
           <div className="mt-8 overflow-hidden rounded-2xl border border-[#ead7ae]">
-            <table className="w-full border-collapse text-center">
-              <thead className="bg-[#f5c542] text-black">
-                <tr>
-                  <th className="p-4">Month</th>
-                  <th className="p-4">Payment Date</th>
-                  <th className="p-4">Amount</th>
-                  <th className="p-4">Gold Rate</th>
-                  <th className="p-4">Gold Grams</th>
-                  <th className="p-4">Method</th>
-                  <th className="p-4">Status</th>
-                </tr>
-              </thead>
+          <table className="w-full border-collapse text-center">
+  <thead className="bg-[#f5c542] text-black">
+    <tr>
+      <th className="p-4">Month</th>
+      <th className="p-4">Due Date</th>
+      <th className="p-4">Paid Date</th>
+      <th className="p-4">Amount</th>
+      <th className="p-4">Gold Rate</th>
+      <th className="p-4">Gold Grams</th>
+      <th className="p-4">Method</th>
+      <th className="p-4">Status</th>
+    </tr>
+  </thead>
 
-              <tbody>
-                {Array.from({ length: selectedScheme.durationMonths || 11 }).map(
-                  (_, index) => {
-                    const payment = selectedScheme.payments?.find(
-                      (p: any) => p.monthNumber === index + 1
-                    );
+  <tbody>
+    {Array.from({ length: selectedScheme?.durationMonths || 11 }).map(
+      (_, index) => {
+        const monthNumber = index + 1;
 
-                    return (
-                      <tr key={index} className="border-b">
-                        <td className="p-4 font-bold">{index + 1}</td>
-                        <td className="p-4">
-                          {payment ? formatDate(payment.paymentDate) : "-"}
-                        </td>
-                        <td className="p-4">
-                          {payment ? formatMoney(payment.paidAmount) : "-"}
-                        </td>
-                        <td className="p-4">
-                          {payment ? `₹${payment.ratePerGram}/gm` : "-"}
-                        </td>
-                        <td className="p-4">
-                          {payment
-                            ? `${Number(payment.metalWeight || 0).toFixed(4)} gm`
-                            : "-"}
-                        </td>
-                        <td className="p-4">{payment?.paymentMethod || "-"}</td>
-                        <td className="p-4">
-                          <span
-                            className={`rounded-full px-4 py-1 text-sm font-bold ${
-                              payment
-                                ? "bg-green-100 text-green-700"
-                                : "bg-gray-100 text-gray-500"
-                            }`}
-                          >
-                            {payment ? "PAID" : "UPCOMING"}
-                          </span>
-                        </td>
-                      </tr>
-                    );
-                  }
-                )}
-              </tbody>
-            </table>
+        const payment = selectedScheme.payments?.find(
+          (p: any) => p.monthNumber === monthNumber
+        );
+
+        const dueDate = new Date(selectedScheme.createdAt);
+dueDate.setDate(dueDate.getDate() + index * 2);
+
+        return (
+          <tr key={index} className="border-b">
+            <td className="p-4 font-bold">{monthNumber}</td>
+
+            <td className="p-4">
+              {dueDate.toLocaleDateString("en-IN")}
+            </td>
+
+            <td className="p-4">
+              {payment ? formatDate(payment.paymentDate) : "-"}
+            </td>
+
+            <td className="p-4">
+              {payment ? formatMoney(payment.paidAmount) : "-"}
+            </td>
+
+            <td className="p-4">
+              {payment ? `₹${payment.ratePerGram}/gm` : "-"}
+            </td>
+
+            <td className="p-4">
+              {payment
+                ? `${Number(payment.metalWeight || 0).toFixed(4)} gm`
+                : "-"}
+            </td>
+
+            <td className="p-4">
+              {payment?.paymentMethod || "-"}
+            </td>
+
+            <td className="p-4">
+              <span
+                className={`rounded-full px-4 py-1 text-sm font-bold ${
+                  payment
+                    ? "bg-green-100 text-green-700"
+                    : "bg-gray-100 text-gray-500"
+                }`}
+              >
+                {payment ? "PAID" : "DUE"}
+              </span>
+            </td>
+          </tr>
+        );
+      }
+    )}
+  </tbody>
+</table>
           </div>
         </>
       )}

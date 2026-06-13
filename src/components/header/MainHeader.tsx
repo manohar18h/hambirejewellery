@@ -1,11 +1,12 @@
-import { useState } from "react";
+import { useEffect,useState, useRef  } from "react";
 import axios from "axios";
 import hjlogo from "../../assets/logo.png";
 import goldlogo from "../../assets/goldicon.png";
 import { useNavigate } from "react-router-dom";
 import SearchBar from "./SearchBar";
-import { User, Heart, ShoppingBag, Menu, X } from "lucide-react";
 
+import { User, Heart, ShoppingBag, Menu, X, Bell } from "lucide-react";
+import { getSchemeCustomerProfile, getSchemeDashboard } from "../../api/schemeApi";
 type MetalPrices = {
   gold24Rate: number;
   gold22Rate: number;
@@ -17,7 +18,11 @@ const MainHeader = () => {
   const [showRates, setShowRates] = useState(false);
   const [rates, setRates] = useState<MetalPrices | null>(null);
 const navigate = useNavigate();
-  const fetchRates = async () => {
+const clickable = "clickable-ui"; 
+const [showNotifications, setShowNotifications] = useState(false);
+const [notifications, setNotifications] = useState<any[]>([]);
+const notificationRef = useRef<HTMLDivElement | null>(null);
+ const fetchRates = async () => {
     try {
     const res = await axios.get(
   "https://api.hambirejewellery.com/api/catalog/getTodaysRates"
@@ -29,6 +34,107 @@ const navigate = useNavigate();
       alert("Failed to load today's rates");
     }
   };
+  
+const loadNotifications = async () => {
+  const customer = JSON.parse(localStorage.getItem("schemeCustomer") || "{}");
+  const loginTime = Number(localStorage.getItem("schemeLoginTime") || 0);
+
+  if (!customer?.customerId || !loginTime) {
+    localStorage.removeItem("schemeNotificationError");
+    setNotifications([]);
+    return;
+  }
+
+  const sixHours = 6 * 60 * 60 * 1000;
+
+  if (Date.now() - loginTime > sixHours) {
+    localStorage.removeItem("schemeNotificationError");
+    setNotifications([]);
+    return;
+  }
+
+  const list: any[] = [];
+
+  try {
+    const profile = await getSchemeCustomerProfile(customer.customerId);
+
+    if (!profile?.aadhaarVerified) {
+      list.push({
+        id: "aadhaar-required",
+        title: "Aadhaar Verification Required",
+        message:
+          "Please verify Aadhaar before activating Hambire Jewellery schemes.",
+        buttonText: "Verify Document",
+        action: () => navigate("/scheme-profile"),
+      });
+    } else {
+      localStorage.removeItem("schemeNotificationError");
+    }
+
+    const dashboard = await getSchemeDashboard(customer.customerId);
+
+    const dueFlexiList =
+      dashboard?.flexi11Schemes?.filter(
+        (item: any) => item.showPayButton === true
+      ) || [];
+
+    dueFlexiList.forEach((item: any, index: number) => {
+      list.push({
+        id: `flexi-due-${item.schemeId}`,
+        title: "Flexi 11 Payment Due",
+        message: `Your Flexi 11 month ${
+          Number(item.paidMonths || 0) + 1
+        } payment is ready. Amount: ₹${Number(
+          item.monthlyAmount || 0
+        ).toLocaleString("en-IN")}`,
+        buttonText: "Open Scheme Dashboard",
+        action: () => navigate("/schemes?open=activeSchemes"),
+      });
+    });
+
+    setNotifications(list);
+  } catch (error) {
+    console.error(error);
+    setNotifications([]);
+  }
+};
+
+useEffect(() => {
+  loadNotifications();
+
+  const interval = setInterval(loadNotifications, 30000);
+
+  window.addEventListener("scheme-notifications-refresh", loadNotifications);
+
+  return () => {
+    clearInterval(interval);
+    window.removeEventListener(
+      "scheme-notifications-refresh",
+      loadNotifications
+    );
+  };
+}, []);
+
+useEffect(() => {
+  const handleClickOutside = (event: MouseEvent) => {
+    if (
+      notificationRef.current &&
+      !notificationRef.current.contains(event.target as Node)
+    ) {
+      setShowNotifications(false);
+    }
+  };
+
+  document.addEventListener("mousedown", handleClickOutside);
+
+  return () => {
+    document.removeEventListener("mousedown", handleClickOutside);
+  };
+}, []);
+
+
+
+
 
   return (
     <>
@@ -54,15 +160,14 @@ const navigate = useNavigate();
 
           <button
             onClick={fetchRates}
-            className="flex items-center gap-1 cursor-pointer bg-[#F5C542] hover:bg-[#E6B800] text-[#2F2F2F] font-bold m-5 px-4 py-1 rounded-full text-[14px] transition"
+            className={`${clickable} flex items-center gap-1 cursor-pointer bg-[#F5C542] hover:bg-[#E6B800] text-[#2F2F2F] font-bold m-5 px-4 py-1 rounded-full text-[14px] transition`}
           >
             Today&apos;s Rate
           </button>
 
           <button
   onClick={() => navigate("/schemes")}
-  className="flex items-center gap-1 whitespace-nowrap text-[16px] hover:text-yellow-600 transition"
->
+className={`${clickable} flex items-center gap-1 whitespace-nowrap text-[16px] m-5 px-3 py-1 rounded-full hover:text-yellow-600`}>
   <img
     src={goldlogo}
     alt="Gold Scheme"
@@ -73,18 +178,73 @@ const navigate = useNavigate();
         </div>
 
         <div className="flex items-center gap-3">
-          <button>
-            <User className="h-[25px] w-[25px] hover:text-red-600 transition" />
-          </button>
-          <button>
-            <Heart className="h-[25px] w-[25px] hover:text-red-600 transition" />
-          </button>
-          <button>
-            <ShoppingBag className="h-[25px] w-[25px] hover:text-red-600 transition" />
-          </button>
-          <button>
-            <Menu className="h-[25px] w-[25px] hover:text-red-600 transition" />
-          </button>
+          <button
+  onClick={() => navigate("/scheme-profile")}
+  className={clickable}
+>
+  <User className="h-[25px] w-[25px] hover:text-red-600 transition" />
+</button>
+         <button className={clickable}>
+  <Heart className="h-[25px] w-[25px] hover:text-red-600 transition" />
+</button>
+
+<button className={clickable}>
+  <ShoppingBag className="h-[25px] w-[25px] hover:text-red-600 transition" />
+</button>
+
+<div className="relative">
+  <button
+    onClick={() => {
+      setShowNotifications((prev) => !prev);
+      loadNotifications();
+    }}
+    className={clickable}
+  >
+    <Bell className="h-[25px] w-[25px] hover:text-red-600 transition" />
+  </button>
+
+ {notifications.length > 0 && (
+  <span className="absolute -right-2 -top-2 flex h-5 w-5 items-center justify-center rounded-full bg-red-600 text-[11px] font-bold text-white">
+    {notifications.length}
+  </span>
+)}
+
+ {showNotifications && (
+  <div
+    ref={notificationRef}
+    className="absolute right-0 top-10 z-[9999] w-[360px] rounded-2xl bg-white p-4 shadow-2xl border"
+  > <h3 className="text-[18px] font-bold text-black">Notifications</h3>
+
+    {notifications.length === 0 ? (
+  <p className="mt-4 text-sm text-gray-500">No notifications</p>
+) : (
+  <div className="mt-4 space-y-3">
+    {notifications.map((item) => (
+      <div key={item.id} className="rounded-xl bg-[#fbf7ef] p-4 shadow-sm">
+        <h4 className="font-bold text-[#b98213]">{item.title}</h4>
+        <p className="mt-1 text-sm text-gray-700">{item.message}</p>
+
+        <button
+          onClick={() => {
+            setShowNotifications(false);
+            item.action();
+          }}
+          className={`${clickable} mt-3 rounded-full bg-black px-4 py-2 text-sm font-bold text-white`}
+        >
+          {item.buttonText}
+        </button>
+      </div>
+    ))}
+  </div>
+)}
+        
+    </div>
+  )}
+</div>
+
+<button className={clickable}>
+  <Menu className="h-[25px] w-[25px] hover:text-red-600 transition" />
+</button>
         </div>
       </div>
 
@@ -117,7 +277,7 @@ const navigate = useNavigate();
             Gold 24Kt
           </span>
           <span className="text-[18px] font-bold text-black">
-            ₹{rates.gold24Rate}/gm
+            ₹{(rates.gold24Rate)/10}/gm
           </span>
         </div>
 
@@ -126,7 +286,7 @@ const navigate = useNavigate();
             Gold 22Kt
           </span>
           <span className="text-[18px] font-bold text-black">
-            ₹{rates.gold22Rate}/gm
+            ₹{(rates.gold22Rate)/10}/gm
           </span>
         </div>
 
@@ -135,7 +295,7 @@ const navigate = useNavigate();
             Silver 999
           </span>
           <span className="text-[18px] font-bold text-black">
-            ₹{rates.silver999Rate}/gm
+            ₹{(rates.silver999Rate)/10}/gm
           </span>
         </div>
 
@@ -144,7 +304,7 @@ const navigate = useNavigate();
             Silver 995
           </span>
           <span className="text-[18px] font-bold text-black">
-            ₹{rates.silver995Rate}/gm
+            ₹{(rates.silver995Rate)/10}/gm
           </span>
         </div>
       </div>

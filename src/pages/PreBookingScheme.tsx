@@ -20,6 +20,7 @@ const rows = [
 
 const PreBookingScheme = () => {
   const navigate = useNavigate();
+  const clickable = "clickable-ui";
 
   return (
     <div className="min-h-screen bg-[#fbf7ef]">
@@ -49,8 +50,7 @@ const PreBookingScheme = () => {
 
             <button
               onClick={() => navigate("/schemes/register?scheme=pre-booking")}
-              className="mt-9 rounded-full bg-[#f5c542] px-10 py-4 text-[17px] font-bold text-black"
-            >
+className={`${clickable} mt-9 rounded-full bg-[#f5c542] px-10 py-4 text-[17px] font-bold text-black`}            >
               Join Now
             </button>
           </div>
@@ -172,8 +172,7 @@ const PreBookingScheme = () => {
 
             <button
               onClick={() => navigate("/schemes/register?scheme=pre-booking")}
-              className="mx-auto mt-10 flex items-center gap-3 rounded-full bg-[#f5c542] px-10 py-4 font-bold text-black"
-            >
+className={`${clickable} mx-auto mt-10 flex items-center gap-3 rounded-full bg-[#f5c542] px-10 py-4 font-bold text-black`}            >
               Join Pre-Booking Scheme <ArrowRight />
             </button>
           </div>

@@ -73,3 +73,104 @@ export const createQuickBuyScheme = async (data: any) => {
   const res = await schemeApi.post("/scheme/quick-buy", data);
   return res.data;
 };
+export const payFlexiMonth = async (data: {
+  schemeId: number;
+  paidAmount: number;
+  ratePerGram: number;
+  paymentMethod: string;
+}) => {
+  const res = await schemeApi.post("/scheme/flexi11/pay", data);
+  return res.data;
+};
+export const checkSchemeMobile = async (phoneNumber: string) => {
+  const res = await schemeApi.post("/scheme/auth/check-mobile", {
+    phoneNumber,
+  });
+  return res.data;
+};
+export const checkForgotPasswordMobile = async (phoneNumber: string) => {
+  const res = await schemeApi.post("/scheme/auth/forgot-password/check-mobile", {
+    phoneNumber,
+  });
+  return res.data;
+};
+
+export const resetSchemePassword = async (
+  phoneNumber: string,
+  password: string,
+) => {
+  const res = await schemeApi.post("/scheme/auth/forgot-password/reset", {
+    phoneNumber,
+    password,
+  });
+  return res.data;
+};
+export const getSchemeCustomerProfile = async (customerId: number) => {
+  const res = await schemeApi.get(`/scheme/auth/profile/${customerId}`);
+  return res.data;
+};
+
+export const uploadSchemeProof = async (
+  customerId: number,
+  type: "ADDRESS" | "ID",
+  file: File
+) => {
+  const formData = new FormData();
+  formData.append("file", file);
+
+  const res = await schemeApi.post(
+    `/scheme/auth/profile/${customerId}/upload-proof?type=${type}`,
+    formData,
+    {
+      headers: {
+        "Content-Type": "multipart/form-data",
+      },
+    }
+  );
+
+  return res.data;
+};
+export const verifyAadhaarOcr = async (data: {
+  file: File;
+  name: string;
+  aadhaarNumber: string;
+}) => {
+  const formData = new FormData();
+
+  formData.append("file", data.file);
+  formData.append("name", data.name);
+  formData.append("aadhaarNumber", data.aadhaarNumber);
+
+  const res = await schemeApi.post(
+    "/scheme/auth/verify-aadhaar-ocr",
+    formData,
+    {
+      headers: {
+        "Content-Type": "multipart/form-data",
+      },
+    }
+  );
+
+  return res.data;
+};
+export const verifyCustomerAadhaar = async (
+  customerId: number,
+  aadhaarNumber: string,
+  file: File
+) => {
+  const formData = new FormData();
+  formData.append("aadhaarNumber", aadhaarNumber);
+  formData.append("file", file);
+
+  const res = await schemeApi.post(
+    `/scheme/auth/profile/${customerId}/verify-aadhaar`,
+    formData,
+    {
+      headers: {
+        "Content-Type": "multipart/form-data",
+      },
+    }
+  );
+
+  return res.data;
+};

@@ -21,8 +21,11 @@ type MetalPrices = {
 const QuickBuyScheme = () => {
   const navigate = useNavigate();
   const [rates, setRates] = useState<MetalPrices | null>(null);
-  const [metal, setMetal] = useState<"GOLD" | "SILVER">("GOLD");
+const [metal, setMetal] = useState<
+  "GOLD" | "KAMAL_SILVER" | "SWASTIK_SILVER"
+>("GOLD");
   const [amount, setAmount] = useState(1000);
+  const clickable = "clickable-ui";
 
   useEffect(() => {
     axios
@@ -31,13 +34,19 @@ const QuickBuyScheme = () => {
       .catch((err) => console.error(err));
   }, []);
 
-  const rate =
-    metal === "GOLD" ? rates?.gold24Rate || 0 : rates?.silver999Rate || 0;
+const rate =
+  metal === "GOLD"
+    ? rates?.gold24Rate || 0
+    : metal === "KAMAL_SILVER"
+    ? rates?.silver999Rate || 0
+    : rates?.silver995Rate || 0;
 
-  const weight = useMemo(() => {
-    if (!rate) return 0;
-    return amount / rate;
-  }, [amount, rate]);
+const perGramRate = rate / 10;
+
+ const weight = useMemo(() => {
+  if (!perGramRate) return 0;
+  return amount / perGramRate;
+}, [amount, perGramRate]);
 
   return (
     <div className="min-h-screen bg-[#070707] text-white">
@@ -70,8 +79,7 @@ const QuickBuyScheme = () => {
 
           <button
             onClick={() => navigate("/schemes/register?scheme=quick-buy")}
-            className="mt-9 rounded-full bg-[#f5c542] px-10 py-4 text-[17px] font-bold text-black"
-          >
+className={`${clickable} mt-9 rounded-full bg-[#f5c542] px-10 py-4 text-[17px] font-bold text-black`}          >
             Start Buying
           </button>
         </div>
@@ -79,28 +87,37 @@ const QuickBuyScheme = () => {
         <div className="rounded-[40px] border border-white/10 bg-white/10 p-8 backdrop-blur-xl">
           <h2 className="font-serif text-[38px]">Live Metal Calculator</h2>
 
-          <div className="mt-7 grid grid-cols-2 gap-4">
-            <button
-              onClick={() => setMetal("GOLD")}
-              className={`rounded-2xl px-6 py-4 font-bold ${
-                metal === "GOLD"
-                  ? "bg-[#f5c542] text-black"
-                  : "bg-white/10 text-white"
-              }`}
-            >
-              Gold
-            </button>
+       <div className="mt-7 grid grid-cols-3 gap-4">      
+        <button
+  onClick={() => setMetal("GOLD")}
+  className={`${clickable} rounded-2xl px-6 py-4 font-bold ${
+    metal === "GOLD" ? "bg-[#f5c542] text-black" : "bg-white/10 text-white"
+  }`}
+>
+  Gold
+</button>
 
-            <button
-              onClick={() => setMetal("SILVER")}
-              className={`rounded-2xl px-6 py-4 font-bold ${
-                metal === "SILVER"
-                  ? "bg-[#f5c542] text-black"
-                  : "bg-white/10 text-white"
-              }`}
-            >
-              Silver
-            </button>
+<button
+  onClick={() => setMetal("KAMAL_SILVER")}
+  className={`${clickable} rounded-2xl px-6 py-4 font-bold ${
+    metal === "KAMAL_SILVER"
+      ? "bg-[#f5c542] text-black"
+      : "bg-white/10 text-white"
+  }`}
+>
+  Kamal Silver
+</button>
+
+<button
+  onClick={() => setMetal("SWASTIK_SILVER")}
+  className={`${clickable} rounded-2xl px-6 py-4 font-bold ${
+    metal === "SWASTIK_SILVER"
+      ? "bg-[#f5c542] text-black"
+      : "bg-white/10 text-white"
+  }`}
+>
+  Swastik Silver
+</button>
           </div>
 
           <label className="mt-7 block text-white/70">Enter Amount</label>
@@ -117,23 +134,28 @@ const QuickBuyScheme = () => {
               <button
                 key={value}
                 onClick={() => setAmount(value)}
-                className="rounded-xl bg-white/10 py-3 font-bold hover:bg-[#f5c542] hover:text-black"
-              >
+className={`${clickable} rounded-xl bg-white/10 py-3 font-bold hover:bg-[#f5c542] hover:text-black`}              >
                 ₹{value}
               </button>
             ))}
           </div>
 
           <div className="mt-7 rounded-3xl bg-black/40 p-7">
-            <p className="text-white/60">Current Rate: ₹{rate || "--"}/gm</p>
-
+<p className="text-white/60">
+  Current Rate: ₹{perGramRate || "--"}/gm
+</p>
             <h3 className="mt-3 text-[42px] font-bold text-[#f5c542]">
               {weight.toFixed(4)} gm
             </h3>
 
             <p className="mt-2 text-white/60">
-              Approx {metal === "GOLD" ? "Gold" : "Silver"} weight saved in
-              wallet
+             Approx{" "}
+{metal === "GOLD"
+  ? "Gold"
+  : metal === "KAMAL_SILVER"
+  ? "Kamal Silver"
+  : "Swastik Silver"}{" "}
+weight saved in wallet
             </p>
           </div>
         </div>
@@ -339,8 +361,7 @@ const QuickBuyScheme = () => {
 
           <button
             onClick={() => navigate("/schemes/register?scheme=quick-buy")}
-            className="mx-auto mt-12 flex items-center gap-3 rounded-full bg-black px-12 py-4 text-[17px] font-bold text-white"
-          >
+className={`${clickable} mx-auto mt-12 flex items-center gap-3 rounded-full bg-black px-12 py-4 text-[17px] font-bold text-white`}          >
             Create Metal Wallet <ArrowRight className="h-5 w-5" />
           </button>
         </div>
