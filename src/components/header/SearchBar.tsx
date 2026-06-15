@@ -38,14 +38,16 @@ const SearchBar = () => {
   }, [text, isDeleting, wordIndex, isFocused]);
 
   return (
-    <div className="relative w-[360px]">
+    <div className="relative w-[420px] max-md:flex-1">
       <input
         type="text"
         onFocus={() => setIsFocused(true)}
         onBlur={() => setIsFocused(false)}
         placeholder={isFocused ? "" : `Search for ${text}`}
-        className="h-[38px] w-full rounded-full border border-[#C9A24D]
-           px-4 pr-10 text-[13px]
+className="h-[38px] w-full rounded-full border border-[#C9A24D]
+px-4 pr-10 text-[13px]
+max-md:h-[48px]
+max-md:text-[16px]
            text-black placeholder:text-black
            focus:outline-none
            focus:ring-2 focus:ring-[#C9A24D]

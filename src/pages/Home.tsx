@@ -180,9 +180,9 @@ const banner =
   };
 
   return (
-    <div className="w-full bg-[#f8f8f8]">
-      <section className="relative h-[570px] w-full overflow-hidden bg-black">
-        <div className="relative h-[570px] w-full overflow-hidden">
+    <div className="w-full bg-[#f8f8f8] max-md:pb-[75px]">
+     <section className="relative h-[570px] w-full overflow-hidden bg-black max-md:h-[260px]">
+        <div className="relative h-[570px] w-full overflow-hidden max-md:h-[260px]">
           {/* VIDEO */}
           {banner.mediaType === "VIDEO" ? (
             <video
@@ -266,14 +266,14 @@ const banner =
               Discover exquisite pieces for every style. Start shopping!
             </p>
           </div>
-          <div className="mx-auto grid max-w-[1700px] grid-cols-3 gap-8">
+          <div className="mx-auto grid max-w-[1700px] grid-cols-3 gap-8 max-md:grid-cols-1 max-md:gap-5">
             <div>
               <div className="group overflow-hidden rounded-xl cursor-pointer">
                 {" "}
                 <img
                   src="https://images.unsplash.com/photo-1602173574767-37ac01994b2a?w=900"
                   alt="Diamond Jewellery"
-                  className="h-[640px] w-full cursor-pointer object-cover transition-transform duration-700 group-hover:scale-110"
+                  className="h-[640px] w-full max-md:h-[260px] cursor-pointer object-cover transition-transform duration-700 group-hover:scale-110"
                 />
               </div>
 
@@ -320,7 +320,7 @@ const banner =
                 <img
                   src="https://images.unsplash.com/photo-1611591437281-460bfbe1220a?w=900"
                   alt="Platinum Jewellery"
-                  className="h-[640px] w-full cursor-pointer object-cover transition-transform duration-700 group-hover:scale-110"
+                  className="h-[640px] w-full max-md:h-[260px] cursor-pointer object-cover transition-transform duration-700 group-hover:scale-110"
                 />
               </div>
 
@@ -363,14 +363,13 @@ const banner =
                 Find your style. Explore our diverse collections!
               </p>
             </div>
-            <div className="mx-auto mt-4 grid max-w-[1320px] grid-cols-3 gap-10">
-              {" "}
+            <div className="mx-auto mt-4 grid max-w-[1320px] grid-cols-3 gap-10 max-md:grid-cols-1 max-md:gap-5">
               {collections.map((item, index) => (
                 <div
                   key={item.title}
-                  className={`group relative overflow-hidden rounded-[24px] bg-white shadow-xl cursor-pointer ${
-                    index === 1 ? "-translate-y-10" : "translate-y-4"
-                  }`}
+                 className={`group relative overflow-hidden rounded-[24px] bg-white shadow-xl cursor-pointer max-md:translate-y-0 ${
+  index === 1 ? "-translate-y-10" : "translate-y-4"
+}`}
                 >
                   <img
                     src={item.image}
@@ -421,8 +420,7 @@ const banner =
             Explore our diverse selections. Find your style
           </p>
         </div>
-        <div className="mx-auto grid max-w-[1500px] grid-cols-3 gap-x-5 gap-y-2">
-          {" "}
+        <div className="mx-auto grid max-w-[1500px] grid-cols-3 gap-x-5 gap-y-2 max-md:grid-cols-2 max-md:gap-4">
           {shopCategories.map((category, index) => {
             const delays = [4100, 5200, 2500, 6900, 2500, 5200];
 
@@ -467,15 +465,12 @@ const banner =
           </p>
         </div>
 
-        <div className="mx-auto grid max-w-[1500px] grid-cols-3 gap-6 items-end">
-          {" "}
-          {/* WOMEN */}
-          <div className="group cursor-pointer  translate-y-6">
-            <div className="overflow-hidden rounded-[24px]">
+<div className="mx-auto grid max-w-[1500px] grid-cols-3 gap-6 items-end max-md:grid-cols-1 max-md:gap-8">          {/* WOMEN */}
+<div className="group cursor-pointer translate-y-6 max-md:translate-y-0">            <div className="overflow-hidden rounded-[24px]">
               <img
                 src="https://images.unsplash.com/photo-1617038220319-276d3cfab638?w=900"
                 alt="Women's Jewellery"
-                className="h-[450px] w-full object-cover transition-transform duration-700 group-hover:scale-110"
+                className="h-[450px] w-full max-md:h-[330px] object-cover transition-transform duration-700 group-hover:scale-110"
               />
             </div>
 
@@ -484,12 +479,12 @@ const banner =
             </h3>
           </div>
           {/* MEN */}
-          <div className="group cursor-pointer -translate-y-6">
+          <div className="group cursor-pointer -translate-y-6 max-md:translate-y-0">
             <div className="overflow-hidden rounded-[24px]">
               <img
                 src="https://images.unsplash.com/photo-1517841905240-472988babdf9?w=900"
                 alt="Men's Jewellery"
-                className="h-[450px] w-full object-cover transition-transform duration-700 group-hover:scale-110"
+                className="h-[450px] w-full max-md:h-[330px] object-cover transition-transform duration-700 group-hover:scale-110"
               />
             </div>
 
@@ -498,12 +493,12 @@ const banner =
             </h3>
           </div>
           {/* KIDS */}
-          <div className="group cursor-pointer translate-y-6">
+          <div className="group cursor-pointer translate-y-6 max-md:translate-y-0">
             <div className="overflow-hidden rounded-[24px]">
               <img
                 src="https://images.unsplash.com/photo-1519345182560-3f2917c472ef?w=900"
                 alt="Kid's Jewellery"
-                className="h-[450px] w-full object-cover transition-transform duration-700 group-hover:scale-110"
+                className="h-[450px] w-full max-md:h-[330px] object-cover transition-transform duration-700 group-hover:scale-110"
               />
             </div>
 
@@ -515,8 +510,7 @@ const banner =
       </div>
 
   <section className=" mt-16 bg-[#0d0702] px-10 py-20 text-white">
-  <div className="mx-auto grid max-w-[1500px] grid-cols-2 items-center gap-14">
-    <div>
+<div className="mx-auto grid max-w-[1500px] grid-cols-2 items-center gap-14 max-md:grid-cols-1">    <div>
       <p className="text-[30px] font-bold uppercase tracking-[5px] text-[#f5c542]">
         Hambire Gold Schemes
       </p>
@@ -553,7 +547,7 @@ const banner =
       </button>
     </div>
 
-    <div className="grid grid-cols-2 gap-5">
+    <div className="grid grid-cols-2 gap-5 max-md:grid-cols-1">
       {[
         ["Pre-Booking", "Exchange old gold or book jewellery in advance."],
         ["Flexi 11 Plan", "Pay monthly and enjoy jewellery benefits."],
@@ -620,10 +614,9 @@ const banner =
         </div>
       </section>
     
-      <section className="bg-[#fcfcfc] px-6 py-16 -mt-12">
-        <div className="relative mx-auto max-w-[1500px] px-10 py-10">
-          <div className="relative rounded-[36px] border border-[#cfc8c1] bg-[#fbfaf7] px-10 py-16">
-            {/* TOP LEFT CURVE */}
+      <section className="bg-[#fcfcfc] px-6 py-16 -mt-12 max-md:px-3 max-md:py-10 max-md:mt-0">
+        <div className="relative mx-auto max-w-[1500px] px-10 py-10 max-md:px-0 max-md:py-4">
+<div className="relative rounded-[36px] border border-[#cfc8c1] bg-[#fbfaf7] px-10 py-16 max-md:px-5 max-md:py-12">            {/* TOP LEFT CURVE */}
             <div className="absolute left-[70px] top-[-1px] h-[46px] w-[90px] rounded-b-[50px] border-b border-l border-r border-[#cfc8c1] bg-[#fcfcfc]" />
 
             {/* TOP RIGHT CURVE */}
@@ -636,7 +629,7 @@ const banner =
             <div className="absolute bottom-[-1px] right-[70px] h-[46px] w-[90px] rounded-t-[50px] border-l border-r border-t border-[#cfc8c1] bg-[#fcfcfc]" />
 
             <div className="relative z-10 text-center">
-              <h2 className="font-serif text-[46px] text-[#3b1111]">
+              <h2 className="font-serif text-[46px] text-[#3b1111] max-md:text-[34px] max-md:leading-tight">
                 The Hambire Assurance
               </h2>
 
@@ -645,7 +638,7 @@ const banner =
               </p>
             </div>
 
-            <div className="relative z-10 mt-10 grid grid-cols-2 gap-y-12 lg:grid-cols-4">
+            <div className="relative z-10 mt-10 grid grid-cols-2 gap-x-6 gap-y-10 lg:grid-cols-4">
               {[
                 {
                   image: hallmark,
@@ -681,7 +674,7 @@ const banner =
                     />
                   </div>
 
-                  <h3 className="mt-2 whitespace-pre-line font-serif text-[22px] leading-tight text-[#3b1111]">
+                  <h3 className="mt-3 whitespace-pre-line font-serif text-[20px] leading-tight text-[#3b1111] max-md:text-[17px]">
                     {item.title}
                   </h3>
                 </div>
@@ -712,7 +705,7 @@ const banner =
             </p>
           </div>
 
-          <div className="grid grid-cols-3 gap-6">
+         <div className="grid grid-cols-3 gap-6 max-md:grid-cols-1">
             <div className="flex flex-col gap-6">
               <img
                 src="https://images.unsplash.com/photo-1601121141461-9d6647bca1ed?w=900"
@@ -753,36 +746,34 @@ const banner =
           </div>
         </div>
       </section>
-      <section className="bg-[#fcfcfc] px-15 py-20">
-        <div className="mx-auto grid max-w-[1500px] grid-cols-2 items-center gap-16">
+      <section className="bg-[#fcfcfc] px-15 py-20 max-md:px-5 max-md:py-10">
+        <div className="mx-auto grid max-w-[1500px] grid-cols-2 items-center gap-16 max-md:grid-cols-1">
           {/* LEFT IMAGES */}
-          <div className="relative flex items-center">
+          <div className="relative flex items-center max-md:block max-md:overflow-hidden">
             <img
               src="https://images.unsplash.com/photo-1617038260897-41a1f14a8ca0?w=900"
               alt=""
-              className="h-[450px] w-[380px] rounded-[26px] object-cover shadow-lg"
-            />
+className="h-[450px] w-[380px] rounded-[26px] object-cover shadow-lg max-md:h-[300px] max-md:w-full"            />
 
             <img
               src="https://images.unsplash.com/photo-1602173574767-37ac01994b2a?w=900"
               alt=""
-              className="absolute left-[320px] top-8 h-[400px] w-[340px] rounded-[26px] object-cover shadow-2xl"
-            />
+className="absolute left-[320px] top-8 h-[400px] w-[340px] rounded-[26px] object-cover shadow-2xl max-md:hidden"            />
           </div>
 
           {/* RIGHT CONTENT */}
-          <div className="max-w-[620px]">
-            <h2 className="text-[30px] font-serif leading-tight text-[#111827]">
-              Need help in choosing the best Jewellery?
+         <div className="max-w-[620px] max-md:text-center">
+<h2 className="text-[30px] font-serif leading-tight text-[#111827] max-md:text-[26px]">
+                Need help in choosing the best Jewellery?
             </h2>
 
-            <p className="mt-6 text-[20px] leading-[30px] text-gray-700">
+           <p className="mt-4 text-[20px] leading-[30px] text-gray-700 max-md:text-[16px] max-md:leading-7">
               Hambire Jewellery is a premium shopping destination for gold and
               diamond jewellery dedicated to embellishing your everyday moments
               and milestones with elegance.
             </p>
 
-            <div className="mt-10 flex items-center gap-5">
+           <div className="mt-8 flex items-center gap-5 max-md:flex-col">
               <button
                 className="
             rounded-md bg-[#c91f3a]
@@ -810,7 +801,7 @@ const banner =
       </section>
       <footer className="bg-[#111111] text-white">
         {/* TOP FOOTER */}
-        <div className="mx-auto grid max-w-[1500px] grid-cols-4 gap-14 px-10 py-16">
+        <div className="mx-auto grid max-w-[1500px] grid-cols-4 gap-14 px-10 py-16 max-md:grid-cols-1 max-md:px-5">
           {/* LOGO + ABOUT */}
           <div>
             <div className="flex items-center gap-3">

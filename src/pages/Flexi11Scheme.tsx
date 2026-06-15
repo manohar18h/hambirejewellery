@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { useMemo, useState, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import {
   ArrowRight,
@@ -34,34 +34,49 @@ const exampleRows = [
   [11, 5000, 14900, "0.336", 5000],
 ];
 
+
+
 const Flexi11Scheme = () => {
   const navigate = useNavigate();
   const clickable = "clickable-ui";
   const [amount, setAmount] = useState(5000);
   const goldRate = 10000;
-
+const calculatorRef = useRef<HTMLDivElement | null>(null);
   const total = amount * 11;
   const goldWeight = useMemo(() => total / goldRate, [total]);
 
+
+  const scrollToCalculator = () => {
+  if (calculatorRef.current) {
+    const y =
+      calculatorRef.current.getBoundingClientRect().top +
+      window.pageYOffset -
+      120; // adjust offset if needed
+
+    window.scrollTo({
+      top: y,
+      behavior: "smooth",
+    });
+  }
+};
+
   return (
-    <div className="min-h-screen bg-[#fbf7ef]">
-      <section className="grid min-h-[70vh] grid-cols-2 items-center bg-gradient-to-br from-[#120902] via-[#251505] to-black px-16 text-white">
-        <div>
+    <div className="min-h-screen bg-[#fbf7ef] max-md:pb-[80px]">
+<section className="grid min-h-[70vh] grid-cols-2 items-center gap-12 bg-gradient-to-br from-[#120902] via-[#251505] to-black px-16 py-14 text-white max-md:grid-cols-1 max-md:px-4 max-md:py-10">        <div>
           <p className="text-[15px] font-bold uppercase tracking-[5px] text-[#f5c542]">
             11 Month Jewellery Purchase Plan
           </p>
 
-          <h1 className="mt-5 font-serif text-[72px] leading-[1.05]">
+          <h1 className="mt-5 font-serif text-[72px] leading-[1.05] max-md:text-[42px]">
             Flexi Gold 11
           </h1>
 
-          <p className="mt-6 max-w-[680px] text-[20px] leading-8 text-white/75">
-            Pay monthly for 11 months and enjoy jewellery purchase benefits with
+<p className="mt-5 max-w-[680px] text-[20px] leading-8 text-white/75 max-md:text-[16px] max-md:leading-7">            Pay monthly for 11 months and enjoy jewellery purchase benefits with
             100% V.A benefit, gold rate protection, and flexible value-based or
             weight-based calculation.
           </p>
 
-          <div className="mt-8 grid max-w-[620px] grid-cols-3 gap-4">
+         <div className="mt-8 grid max-w-[620px] grid-cols-3 gap-4 max-md:grid-cols-1">
             {["100% V.A", "11 Months", "Gold Protection"].map((item) => (
               <div
                 key={item}
@@ -74,13 +89,13 @@ const Flexi11Scheme = () => {
 
           <button
             onClick={() => navigate("/schemes/register?scheme=flexi-11")}
-className={`${clickable} mt-9 rounded-full bg-[#f5c542] px-10 py-4 text-[17px] font-bold text-black`}          >
-            Join Now
+className={`${clickable} mt-9 rounded-full bg-[#f5c542] px-10 py-4 text-[17px] font-bold text-black max-md:w-full`}>      
+      Join Now
           </button>
         </div>
 
-        <div className="rounded-[38px] border border-white/10 bg-white/10 p-8 backdrop-blur-xl">
-          <h2 className="font-serif text-[36px]">Calculate Your Benefit</h2>
+<div  ref={calculatorRef} className="rounded-[38px] border border-white/10 bg-white/10 p-8 backdrop-blur-xl max-md:p-5">
+          <h2 className="font-serif text-[36px] max-md:text-[30px]">Calculate Your Benefit</h2>
 
           <label className="mt-6 block text-white/70">Monthly Amount</label>
 
@@ -88,10 +103,10 @@ className={`${clickable} mt-9 rounded-full bg-[#f5c542] px-10 py-4 text-[17px] f
             type="number"
             value={amount}
             onChange={(e) => setAmount(Number(e.target.value))}
-            className="mt-3 w-full rounded-2xl border border-white/20 bg-black/40 px-5 py-4 text-[22px] outline-none"
+className="mt-3 w-full rounded-2xl border border-white/20 bg-black/40 px-5 py-4 text-[22px] outline-none max-md:text-[20px]"
           />
 
-          <div className="mt-6 grid grid-cols-2 gap-5">
+          <div className="mt-6 grid grid-cols-2 gap-5 max-md:grid-cols-1">
             <div className="rounded-2xl bg-white/10 p-5">
               <p className="text-white/60">11 Month Total</p>
               <h3 className="mt-2 text-[28px] font-bold text-[#f5c542]">
@@ -114,33 +129,39 @@ className={`${clickable} mt-9 rounded-full bg-[#f5c542] px-10 py-4 text-[17px] f
         </div>
       </section>
 
-      <section className="px-12 pt-8 pb-20">
+      <section className="px-12 pt-8 pb-20 max-md:px-4 max-md:pb-12">
         <div className="mx-auto max-w-[1450px]">
-          <h2 className="text-center font-serif text-[48px]">
+          <h2 className="text-center font-serif text-[48px] max-md:text-[34px]">
             Easy Installment Options
           </h2>
 
-          <p className="mx-auto mt-3 max-w-[900px] text-center text-[18px] leading-8 text-gray-700">
-            Choose a monthly installment that suits your budget. At the end of
+<p className="mx-auto mt-3 max-w-[900px] text-center text-[18px] leading-8 text-gray-700 max-md:text-[16px] max-md:leading-7">
+              Choose a monthly installment that suits your budget. At the end of
             11 months, your accumulated amount or gold weight can be used for
             jewellery purchase.
           </p>
 
-          <div className="mt-10 grid grid-cols-6 gap-5">
+          <div className="mt-8 grid grid-cols-6 gap-5 max-md:grid-cols-2 max-md:gap-3">
             {[1000, 2000, 5000, 10000, 25000, 50000].map((price) => (
               <button
                 key={price}
-                onClick={() => setAmount(price)}
-className={`${clickable} rounded-[24px] bg-white px-5 py-8 text-[24px] font-bold shadow-lg hover:bg-[#111] hover:text-[#f5c542]`}              >
-                ₹{price.toLocaleString("en-IN")}
+               onClick={() => {
+  setAmount(price);
+
+  setTimeout(() => {
+    scrollToCalculator();
+  }, 100);
+}}
+className={`${clickable} rounded-[24px] bg-white px-5 py-8 text-[24px] font-bold shadow-lg hover:bg-[#111] hover:text-[#f5c542] max-md:px-3 max-md:py-5 max-md:text-[18px]`}
+>                ₹{price.toLocaleString("en-IN")}
               </button>
             ))}
           </div>
 
-          <div className="mt-16 rounded-[34px] bg-white p-8 shadow-xl">
-            <h3 className="mb-6 font-serif text-[34px]">Scheme Benefits</h3>
+          <div className="mt-16 rounded-[34px] bg-white p-8 shadow-xl max-md:p-5">
+            <h3 className="mb-6 font-serif text-[34px] max-md:text-[28px]">Scheme Benefits</h3>
 
-            <div className="grid grid-cols-4 gap-5">
+            <div className="grid grid-cols-4 gap-5 max-md:grid-cols-1">
               {[
                 ["100% VA Benefit", <BadgePercent />],
                 ["Gold Rate Protection", <TrendingUp />],
@@ -160,11 +181,11 @@ className={`${clickable} rounded-[24px] bg-white px-5 py-8 text-[24px] font-bold
             </div>
           </div>
 
-          <section className="mt-16 grid grid-cols-2 gap-10">
-            <div className="rounded-[34px] bg-[#111] p-8 text-white shadow-xl">
+          <section className="mt-16 grid grid-cols-2 gap-10 max-md:grid-cols-1">
+            <div className="rounded-[34px] bg-[#111] p-8 text-white shadow-xl  max-md:p-5">
               <Calculator className="h-12 w-12 text-[#f5c542]" />
 
-              <h3 className="mt-5 font-serif text-[34px]">
+              <h3 className="mt-5 font-serif text-[34px] max-md:text-[28px]">
                 Weight-Based or Value-Based Option
               </h3>
 
@@ -175,10 +196,10 @@ className={`${clickable} rounded-[24px] bg-white px-5 py-8 text-[24px] font-bold
               </p>
             </div>
 
-            <div className="rounded-[34px] bg-white p-8 shadow-xl">
+            <div className="rounded-[34px] bg-white p-8 shadow-xl max-md:p-5">
               <ShieldCheck className="h-12 w-12 text-[#b98213]" />
 
-              <h3 className="mt-5 font-serif text-[34px]">
+              <h3 className="mt-5 font-serif text-[34px] max-md:text-[28px]">
                 Protection From Gold Rate Fluctuations
               </h3>
 
@@ -190,26 +211,26 @@ className={`${clickable} rounded-[24px] bg-white px-5 py-8 text-[24px] font-bold
             </div>
           </section>
 
-          <section className="mt-16 rounded-[34px] bg-white p-8 shadow-xl">
+          <section className="mt-16 rounded-[34px] bg-white p-8 shadow-xl max-md:p-5">
             <div className="mb-8 text-center">
               <p className="text-[14px] font-bold uppercase tracking-[4px] text-[#b98213]">
                 Jewellery Benefit Table
               </p>
 
-              <h3 className="mt-2 font-serif text-[40px]">
+              <h3 className="mt-2 font-serif text-[40px] max-md:text-[30px]">
                 Category Wise Benefits
               </h3>
             </div>
 
-            <div className="overflow-hidden rounded-2xl border border-[#ead7ae]">
-              <table className="w-full border-collapse text-center">
+<div className="overflow-hidden rounded-2xl border border-[#ead7ae]">        
+        <table className="w-full border-collapse text-center">
                 <thead className="bg-[#5d1f32] text-white">
                   <tr>
-                    <th className="p-5">Category</th>
-                    <th className="p-5">V.A Charges</th>
-                    <th className="p-5">Making Charges</th>
-                    <th className="p-5">Per Carat</th>
-                    <th className="p-5">MRP</th>
+                    <th className="p-2 text-[11px] md:p-5 md:text-[16px]">Category</th>
+                    <th className="p-2 text-[11px] md:p-5 md:text-[16px]">V.A Charges</th>
+                    <th className="p-2 text-[11px] md:p-5 md:text-[16px]">Making Charges</th>
+                    <th className="p-2 text-[11px] md:p-5 md:text-[16px]">Per Carat</th>
+                    <th className="p-2 text-[11px] md:p-5 md:text-[16px]">MRP</th>
                   </tr>
                 </thead>
 
@@ -219,8 +240,8 @@ className={`${clickable} rounded-[24px] bg-white px-5 py-8 text-[24px] font-bold
                       {row.map((cell) => (
                         <td
                           key={cell}
-                          className="border-r border-[#ead7ae] p-5 text-[16px] font-medium last:border-r-0"
-                        >
+className="border-r border-[#ead7ae] p-2 text-[10px] font-medium last:border-r-0 md:p-5 md:text-[16px]"
+                 >
                           {cell}
                         </td>
                       ))}
@@ -231,58 +252,57 @@ className={`${clickable} rounded-[24px] bg-white px-5 py-8 text-[24px] font-bold
             </div>
           </section>
 
-          <section className="mt-16 rounded-[34px] bg-[#111] p-8 text-white shadow-xl">
-            <div className="mb-8 text-center">
+<section className="mt-16 rounded-[34px] bg-[#111] p-8 text-white shadow-xl max-md:p-5">            <div className="mb-8 text-center">
               <p className="text-[14px] font-bold uppercase tracking-[4px] text-[#f5c542]">
                 Example Calculation
               </p>
 
-              <h3 className="mt-2 font-serif text-[40px]">
+              <h3 className="mt-2 font-serif text-[40px] max-md:text-[30px]">
                 ₹5,000 Monthly Plan for 11 Months
               </h3>
             </div>
 
-            <div className="overflow-hidden rounded-2xl border border-white/10">
-              <table className="w-full border-collapse text-center">
-                <thead className="bg-white/10">
+<div className="overflow-hidden rounded-2xl border border-white/10">
+<table className="w-full border-collapse text-center">
+                  <thead className="bg-white/10">
                   <tr>
-                    <th className="p-5">Month</th>
-                    <th className="p-5">Monthly Amount</th>
-                    <th className="p-5">Gold Rate / gm</th>
-                    <th className="p-5">Gold Weight</th>
-                    <th className="p-5">Value Option</th>
+                    <th className="p-2 text-[10px] md:p-5 md:text-[16px]">Month</th>
+                    <th className="p-2 text-[10px] md:p-5 md:text-[16px]">Monthly Amount</th>
+                    <th className="p-2 text-[10px] md:p-5 md:text-[16px]">Gold Rate / gm</th>
+                    <th className="p-2 text-[10px] md:p-5 md:text-[16px]">Gold Weight</th>
+                    <th className="p-2 text-[10px] md:p-5 md:text-[16px]">Value Option</th>
                   </tr>
                 </thead>
 
                 <tbody>
                   {exampleRows.map((row) => (
                     <tr key={row[0]} className="border-b border-white/10">
-                      <td className="p-4 font-bold">{row[0]}</td>
-                      <td className="p-4">₹{row[1]}</td>
-                      <td className="p-4">₹{row[2]}</td>
-                      <td className="p-4">{row[3]} gm</td>
-                      <td className="p-4">₹{row[4]}</td>
+                      <td className="p-2 text-[10px] font-bold md:p-4 md:text-[16px]">{row[0]}</td>
+                      <td className="p-2 text-[10px] md:p-4 md:text-[16px]">₹{row[1]}</td>
+                      <td className="p-2 text-[10px] md:p-4 md:text-[16px]">₹{row[2]}</td>
+                      <td className="p-2 text-[10px] md:p-4 md:text-[16px]">{row[3]} gm</td>
+                      <td className="p-2 text-[10px] md:p-4 md:text-[16px]">₹{row[4]}</td>
                     </tr>
                   ))}
 
                   <tr className="bg-[#f5c542] font-bold text-black">
-                    <td className="p-5">Total</td>
-                    <td className="p-5">₹55,000</td>
-                    <td className="p-5">-</td>
-                    <td className="p-5">3.794 gm</td>
-                    <td className="p-5">₹55,000</td>
+                    <td className="p-2 text-[10px] md:p-5 md:text-[16px]">Total</td>
+                    <td className="p-2 text-[10px] md:p-5 md:text-[16px]">₹55,000</td>
+                    <td className="p-2 text-[10px] md:p-5 md:text-[16px]">-</td>
+                    <td className="p-2 text-[10px] md:p-5 md:text-[16px]">3.794 gm</td>
+                    <td className="p-2 text-[10px] md:p-5 md:text-[16px]">₹55,000</td>
                   </tr>
                 </tbody>
               </table>
             </div>
           </section>
 
-          <section className="mt-16 rounded-[34px] bg-white p-10 shadow-xl">
-            <h3 className="font-serif text-[38px]">
+<section className="mt-16 rounded-[34px] bg-white p-10 shadow-xl max-md:p-5">     
+         <h3 className="font-serif text-[38px] max-md:text-[30px]">
               Important Scheme Details
             </h3>
 
-            <div className="mt-8 space-y-7 text-[17px] leading-8 text-gray-700">
+            <div className="mt-8 space-y-7 text-[17px] leading-8 text-gray-700 max-md:text-[16px] max-md:leading-7">
               <p>
                 On successful completion of 11 months, customers can purchase
                 eligible jewellery with value addition benefits as per the
@@ -336,8 +356,8 @@ className={`${clickable} rounded-[24px] bg-white px-5 py-8 text-[24px] font-bold
 
           <button
             onClick={() => navigate("/schemes/register?scheme=flexi-11")}
-className={`${clickable} mx-auto mt-12 flex items-center gap-3 rounded-full bg-black px-12 py-4 text-[17px] font-bold text-white`}          >
-            Join Flexi 11 Plan <ArrowRight className="h-5 w-5" />
+className={`${clickable} mx-auto mt-12 flex items-center justify-center gap-3 rounded-full bg-black px-12 py-4 text-[17px] font-bold text-white max-md:w-full`}
+>            Join Flexi 11 Plan <ArrowRight className="h-5 w-5" />
           </button>
         </div>
       </section>

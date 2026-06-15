@@ -16,30 +16,25 @@ const TopBar = () => {
     return () => clearInterval(timer);
   }, []);
 
+  const [isMobile, setIsMobile] = useState(window.innerWidth <= 768);
+
+useEffect(() => {
+  const handleResize = () => setIsMobile(window.innerWidth <= 768);
+
+  window.addEventListener("resize", handleResize);
+
+  return () => window.removeEventListener("resize", handleResize);
+}, []);
+
   return (
-    <div
-      style={{
-        background: "#FE7F00",
-        height: "32px",
-        display: "flex",
-        alignItems: "center",
-        justifyContent: "center",
-        fontSize: "12px",
-        color: "white",
-        letterSpacing: "0.05em",
-      }}
-    >
+   <div className="flex min-h-[25px] items-center justify-center bg-[#FE7F00] px-2 py-1 text-center text-[10px] text-white tracking-[0.05em] md:text-[12px]">
       <span>
         {messages[index]}
-        <span
-          style={{
-            marginLeft: "6px",
-            textDecoration: "underline",
-            cursor: "pointer",
-          }}
-        >
-          Click to Join Scheme
-        </span>
+       <span
+  className="ml-1 cursor-pointer underline text-[10px] md:text-[12px]"
+>
+  Click to Join Scheme
+</span>
       </span>
     </div>
   );

@@ -10,8 +10,7 @@ import {
   Upload,
   Lock,
   TrendingUp,
-  Coins,
-  
+  Coins
 } from "lucide-react";
 import { RecaptchaVerifier, signInWithPhoneNumber } from "firebase/auth";
 import { auth } from "../api/firebase";
@@ -44,6 +43,7 @@ const isOtpAllowed = isRecaptchaVerified;
 const [aadhaarFile, setAadhaarFile] = useState<File | null>(null);
 const [aadhaarVerified, setAadhaarVerified] = useState(false);
 const [verifyingAadhaar, setVerifyingAadhaar] = useState(false);
+const formCardRef = useRef<HTMLDivElement | null>(null);
   const [registerData, setRegisterData] = useState({
   name: "",
   village: "",
@@ -640,7 +640,20 @@ const handleCreatePreBooking = async () => {
 };
 
 
+const getCompletedMonths = (item: any) => {
+  if (!item.createdAt || !item.maturityDate || !item.holdMonths) return 0;
 
+  const created = new Date(item.createdAt).getTime();
+  const maturity = new Date(item.maturityDate).getTime();
+  const now = Date.now();
+
+  const total = maturity - created;
+  if (total <= 0) return item.holdMonths;
+
+  const elapsed = Math.max(0, Math.min(now - created, total));
+
+  return Math.floor((elapsed / total) * item.holdMonths);
+};
 
 
 const handleCreateFlexi11 = async () => {
@@ -720,12 +733,12 @@ const handleCreateQuickBuy = async () => {
 };
 
   const renderLeftCard = () => (
-    <div className="rounded-[34px] bg-gradient-to-br from-[#120902] via-[#251505] to-black p-8 text-white shadow-2xl">
-      <p className="text-[13px] font-bold uppercase tracking-[4px] text-[#f5c542]">
+<div className="rounded-[34px] bg-gradient-to-br from-[#120902] via-[#251505] to-black p-8 text-white shadow-2xl max-md:order-2 max-md:p-5">
+          <p className="text-[13px] font-bold uppercase tracking-[4px] text-[#f5c542]">
         Hambire Jewellery
       </p>
 
-      <h1 className="mt-4 font-serif text-[42px] leading-tight">
+      <h1 className="mt-4 font-serif text-[42px] leading-tight max-md:text-[30px]">
         {pageTitle}
       </h1>
 
@@ -862,24 +875,64 @@ if (step === "checking") {
   );
 }
 
-  return (
-    <div className="min-h-screen bg-[#fbf7ef] px-8 py-14">
-      {step !== "wallet" ? (
-        <div className="mx-auto grid max-w-[1450px] grid-cols-[420px_1fr] gap-10">
-          {renderLeftCard()}
+const detailButtonClass = `
+  ${clickable}
+  flex
+  h-[52px]
+  w-full
+  items-center
+  justify-center
+  rounded-xl
+  border
+  border-[#f5c542]
+  bg-transparent
+  px-4
+  font-bold
+  text-[#f5c542]
+  transition-all
+  duration-300
+  hover:bg-[#f5c542]
+  hover:text-black
+  hover:shadow-lg
+`;
 
-          <div className="rounded-[34px] bg-white p-10 shadow-2xl">
-            {step === "login" && (
+const scrollToFormCard = () => {
+  setTimeout(() => {
+    if (formCardRef.current) {
+      const y =
+        formCardRef.current.getBoundingClientRect().top +
+        window.pageYOffset -
+        120;
+
+      window.scrollTo({
+        top: y,
+        behavior: "smooth",
+      });
+    }
+  }, 100);
+};
+
+  return (
+    <div className="min-h-screen bg-[#fbf7ef] px-8 py-14 max-md:px-4 max-md:py-6 max-md:pb-[90px]">
+      {step !== "wallet" ? (
+<div className="mx-auto grid max-w-[1450px] grid-cols-[420px_1fr] gap-10 max-md:grid-cols-1 max-md:gap-5">
+            {renderLeftCard()}
+
+<div
+  ref={formCardRef}
+  className="rounded-[34px] bg-white p-10 shadow-2xl max-md:order-1 max-md:p-5"
+>
+                {step === "login" && (
               <>
                 <p className="text-[14px] font-bold uppercase tracking-[4px] text-[#b98213]">
                   Customer Login
                 </p>
 
-                <h2 className="mt-3 font-serif text-[44px]">
+                <h2 className="mt-3 font-serif text-[44px] max-md:text-[30px] max-md:leading-tight">
                   Login to Scheme Wallet
                 </h2>
 
-                <div className="mt-10 grid grid-cols-2 gap-6">
+                <div className="mt-10 grid grid-cols-2 gap-6 max-md:grid-cols-1 max-md:mt-6">
                   <div>
                     <label className="mb-2 block font-semibold text-gray-700">
                       Mobile Number
@@ -926,7 +979,10 @@ className={`${clickable} mt-8 flex w-full items-center justify-center gap-3 roun
                 </button>
 
                 <button
-                  onClick={() => setStep("register")}
+                  onClick={() => {
+  setStep("register");
+  scrollToFormCard();
+}}
 className={`${clickable} mt-4 flex w-full items-center justify-center gap-3 rounded-full border border-[#b98213] px-8 py-4 text-[17px] font-bold text-[#b98213]`}                >
                   New Customer Registration <UserPlus className="h-5 w-5" />
                 </button>
@@ -1196,26 +1252,27 @@ className={`${clickable} mt-10 w-full rounded-full bg-black px-8 py-4 text-[17px
         </div>
       ) : (
         <div className="mx-auto max-w-[1550px]">
-          <div className="rounded-[34px] bg-white p-10 shadow-2xl">
-            <div className="flex items-start justify-between">
+          <div className="rounded-[34px] bg-white p-10 shadow-2xl max-md:p-5">
+            <div className="flex items-start justify-between max-md:flex-col max-md:gap-4">
               <div>
                 <p className="text-[14px] font-bold uppercase tracking-[4px] text-[#b98213]">
                   Hambire Scheme Dashboard
                 </p>
 
-                <h2 className="mt-3 font-serif text-[46px]">
+                <h2 className="mt-3 font-serif text-[46px] max-md:text-[30px] max-md:leading-tight">
                   Welcome to Your Scheme Wallet
                 </h2>
               </div>
 
-              <button
-                onClick={logoutSchemeCustomer}
-className={`${clickable} rounded-full border border-gray-300 px-7 py-3 font-bold text-gray-700`}              >
-                Logout
-              </button>
+             <button
+  onClick={logoutSchemeCustomer}
+  className={`${clickable} max-md:hidden rounded-full border border-gray-300 px-7 py-3 font-bold text-gray-700`}
+>
+  Logout
+</button>
             </div>
 
-        <div className="mt-8 grid grid-cols-1 gap-6 md:grid-cols-2 xl:grid-cols-6">
+       <div className="mt-8 grid grid-cols-2 gap-3 lg:grid-cols-3 xl:grid-cols-6">
   {[
     {
       title: "Active Schemes",
@@ -1248,34 +1305,44 @@ className={`${clickable} rounded-full border border-gray-300 px-7 py-3 font-bold
   used: "Scheme value",
 },
   ].map((item) => (
-    <div
-      key={item.title}
-    className={`rounded-[24px] p-6 text-center shadow ${
-  item.title === "Active Schemes"
-    ? "bg-[#111] text-white"
-    : "bg-[#fbf7ef]"
-}`}
-    >
-      <p className={item.title === "Active Schemes" ? "text-white/60" : "text-gray-600"}>
-        {item.title}
-      </p>
+   <div
+  key={item.title}
+  className={`rounded-[20px] p-4 text-center shadow ${
+    item.title === "Active Schemes"
+      ? "bg-[#111] text-white"
+      : "bg-[#fbf7ef]"
+  }`}
+>
+  <p
+    className={`text-[13px] ${
+      item.title === "Active Schemes"
+        ? "text-white/60"
+        : "text-gray-600"
+    }`}
+  >
+    {item.title}
+  </p>
 
-      <h3 className={`mt-3 text-[26px] font-bold ${
-        item.title === "Active Schemes" ? "text-[#f5c542]" : "text-[#b98213]"
-      }`}>
-        {item.value}
-      </h3>
+  <h3
+    className={`mt-2 text-[20px] font-bold ${
+      item.title === "Active Schemes"
+        ? "text-[#f5c542]"
+        : "text-[#b98213]"
+    }`}
+  >
+    {item.value}
+  </h3>
 
-      {item.used && (
-        <p className={item.title === "Total Savings" ? "mt-2 text-[14px] text-white/50" : "mt-2 text-[14px] font-semibold text-gray-500"}>
-          {item.used}
-        </p>
-      )}
-    </div>
+  {item.used && (
+    <p className="mt-1 text-[11px] font-semibold text-gray-500">
+      {item.used}
+    </p>
+  )}
+</div>
   ))}
 </div>
 
-            <div className="mt-10 grid grid-cols-4 gap-4">
+            <div className="mt-8 grid grid-cols-4 gap-4 max-md:grid-cols-2 max-md:gap-3">
               {[
                 ["overview", "Overview"],
                 ["preBooking", "Pre-Booking"],
@@ -1284,7 +1351,8 @@ className={`${clickable} rounded-full border border-gray-300 px-7 py-3 font-bold
               ].map(([key, label]) => (
                 <button
                   key={key}
-onClick={() => handleDashboardTabClick(key as any)}  className={`${clickable} rounded-full px-6 py-3 font-bold ${    
+onClick={() => handleDashboardTabClick(key as any)} 
+ className={`${clickable} rounded-full px-6 py-3 font-bold max-md:px-3 max-md:text-[14px] ${    
                     dashboardTab === key
                       ? "bg-[#f5c542] text-black"
                       : "bg-[#fbf7ef] text-black"
@@ -1295,15 +1363,15 @@ onClick={() => handleDashboardTabClick(key as any)}  className={`${clickable} ro
               ))}
             </div>
 
-            <div className="mt-8 overflow-hidden rounded-[30px] border border-[#f5c542]/40 bg-[#111] shadow-2xl">
+<div className="mt-8 overflow-hidden rounded-[30px] border border-[#f5c542]/40 bg-[#111] shadow-2xl">
   <button
     onClick={() => setShowActiveSchemes((prev) => !prev)}
-className={`${clickable} flex w-full items-center justify-between px-8 py-6 text-left`}  >
-    <div>
+className={`${clickable} flex w-full items-center justify-between gap-4 px-8 py-6 text-left max-md:px-4 max-md:py-5`}
+>    <div>
       <p className="text-[13px] font-bold uppercase tracking-[4px] text-[#f5c542]">
 View All Schemes & Transactions
       </p>
-      <h3 className="mt-2 font-serif text-[32px] text-white">
+      <h3 className="mt-2 font-serif text-[32px] text-white max-md:text-[24px]">
         Your Running Gold & Silver Benefits
       </h3>
       <p className="mt-2 text-white/60">
@@ -1311,7 +1379,7 @@ Check Pre-Booking, Flexi 11 and Quick Buy transactions in one place.      </p>
     </div>
 
     <div
-      className={`flex h-14 w-14 items-center justify-center rounded-full bg-[#f5c542] text-[28px] font-bold text-black transition-transform duration-[1200ms] ease-[cubic-bezier(0.22,1,0.36,1)] ${
+      className={`flex h-14 w-14 shrink-0 items-center justify-center rounded-full bg-[#f5c542] text-[28px] font-bold text-black transition-transform duration-[1200ms] ease-[cubic-bezier(0.22,1,0.36,1)] ${
         showActiveSchemes ? "rotate-180" : ""
       }`}
     >
@@ -1327,14 +1395,14 @@ Check Pre-Booking, Flexi 11 and Quick Buy transactions in one place.      </p>
   }`}
 >
     <div className="overflow-hidden">
-      <div className="border-t border-white/10 px-8 py-8">
+      <div className="border-t border-white/10 px-8 py-8 max-md:px-4">
         {totalDashboardCards === 0 ? (
           <div className="rounded-[24px] bg-white/10 p-8 text-center text-white">
             No active schemes found.
           </div>
         ) : (
           <div
-  className={`grid grid-cols-3 gap-6 transition-all duration-[1600ms] ease-[cubic-bezier(0.22,1,0.36,1)] ${
+  className={`grid grid-cols-3 gap-6 transition-all max-md:grid-cols-1 duration-[1600ms] ease-[cubic-bezier(0.22,1,0.36,1)] ${
     showActiveSchemes
       ? "translate-y-0 scale-100 opacity-100"
       : "translate-y-8 scale-[0.98] opacity-0"
@@ -1420,7 +1488,9 @@ Check Pre-Booking, Flexi 11 and Quick Buy transactions in one place.      </p>
 
           <div className="flex justify-between border-b border-white/10 pb-2">
             <span className="text-white/50">Hold Months</span>
-            <b>{item.holdMonths || 0} Months</b>
+            <b>
+  {getCompletedMonths(item)}/{item.holdMonths || 0} Months
+</b>
           </div>
 
           <div className="flex justify-between">
@@ -1429,11 +1499,12 @@ Check Pre-Booking, Flexi 11 and Quick Buy transactions in one place.      </p>
           </div>
         </div>
 
-        <button
-          onClick={() => openSchemeDetails("PRE_BOOKING", item)}
-className={`${clickable} mt-5 w-full rounded-full bg-[#f5c542] px-5 py-3 font-bold text-black`}        >
-          View Scheme Details
-        </button>
+       <button
+  onClick={() => openSchemeDetails("PRE_BOOKING", item)}
+  className={detailButtonClass}
+>
+  View Details
+</button>
       </div>
     );
   })}
@@ -1503,28 +1574,28 @@ className={`${clickable} mt-5 w-full rounded-full bg-[#f5c542] px-5 py-3 font-bo
         </div>
       </div>
 
-      <div className="mt-5 grid grid-cols-2 gap-3">
-    {item.showPayButton === true && (
- <button
-  type="button"
-  onClick={(e) => {
-    e.preventDefault();
-    handlePayFlexiMonth(item);
-  }}
-className={`${clickable} mt-5 w-full rounded-full bg-[#f5c542] px-5 py-3 font-bold text-black`}>
-  Pay Now
-</button>
-)}
+     <div className="mt-5 flex gap-3">
+  {item.showPayButton && (
+    <button
+      onClick={(e) => {
+        e.preventDefault();
+        handlePayFlexiMonth(item);
+      }}
+      className={`${clickable} flex-1 rounded-xl bg-[#f5c542] py-3 font-bold text-black shadow-lg`}
+    >
+      Pay Now
+    </button>
+  )}
 
-        <button
-          onClick={() => openSchemeDetails("FLEXI_11", item)}
-          className={`${clickable} rounded-full bg-[#f5c542] px-5 py-3 font-bold text-black ${
-            item.showPayButton ? "" : "col-span-2"
-          }`}
-        >
-          View Scheme Details
-        </button>
-      </div>
+ <button
+  onClick={() => openSchemeDetails("FLEXI_11", item)}
+  className={`${detailButtonClass} ${
+    item.showPayButton ? "" : "col-span-2"
+  }`}
+>
+  View Details
+</button>
+</div>
     </div>
   ))}
 
@@ -1582,10 +1653,11 @@ className={`${clickable} mt-5 w-full rounded-full bg-[#f5c542] px-5 py-3 font-bo
       </div>
 
       <button
-        onClick={() => openSchemeDetails("QUICK_BUY", item)}
-className={`${clickable} mt-5 w-full rounded-full bg-[#f5c542] px-5 py-3 font-bold text-black`}      >
-        View All Transactions
-      </button>
+  onClick={() => openSchemeDetails("QUICK_BUY", item)}
+  className={detailButtonClass}
+>
+  View Transactions
+</button>
     </div>
   ))}
   
@@ -1598,8 +1670,8 @@ className={`${clickable} mt-5 w-full rounded-full bg-[#f5c542] px-5 py-3 font-bo
 
 
             {dashboardTab === "overview" && (
-              <div  id="overview-section" className="mt-10 grid grid-cols-3 gap-6">
-                {[
+<div id="overview-section" className="mt-10 grid grid-cols-3 gap-6 max-md:grid-cols-1">
+                  {[
                   {
                     title: "Pre-Booking & Exchange",
                     desc: "Hold advance amount or old jewellery and buy later with VA benefits.",
@@ -1621,7 +1693,7 @@ className={`${clickable} mt-5 w-full rounded-full bg-[#f5c542] px-5 py-3 font-bo
                 ].map((item) => (
                   <div
                     key={item.title}
-                    className="rounded-[30px] bg-[#111] p-7 text-white shadow-xl"
+                    className="rounded-[30px] bg-[#111] p-7 text-white shadow-xl max-md:p-5"
                   >
                     <h3 className="font-serif text-[28px] text-[#f5c542]">
                       {item.title}
@@ -1651,14 +1723,14 @@ className={`${clickable} mt-5 w-full rounded-full bg-[#f5c542] px-5 py-3 font-bo
             )}
 
             {dashboardTab === "preBooking" && (
-  <div id="pre-booking-section"  className="mt-10 rounded-[34px] bg-[#111] p-8 text-white shadow-2xl">
-    <p className="text-[14px] font-bold uppercase tracking-[4px] text-[#f5c542]">
+<div id="pre-booking-section" className="mt-10 rounded-[34px] bg-[#111] p-8 text-white shadow-2xl max-md:p-5">
+      <p className="text-[14px] font-bold uppercase tracking-[4px] text-[#f5c542]">
       Pre-Booking & Exchange
     </p>
 
-    <div className="flex items-start justify-between">
+    <div className="flex items-start justify-between max-md:flex-col max-md:gap-4">
       <div>
-        <h3 className="mt-2 font-serif text-[38px]">
+        <h3 className="mt-2 font-serif text-[38px] max-md:text-[28px]">
           Hold Gold Value & Buy Jewellery Later
         </h3>
 
@@ -1670,12 +1742,12 @@ className={`${clickable} mt-5 w-full rounded-full bg-[#f5c542] px-5 py-3 font-bo
       </div>
 
       {isAdvanceBooking && selectedRate && (
-        <div className="text-right">
+       <div className="text-right max-md:text-left">
           <p className="text-[14px] font-semibold uppercase tracking-[2px] text-[#f5c542]">
             {selectedRateTitle}
           </p>
 
-          <h2 className="mt-1 text-[42px] font-extrabold leading-none text-[#f5c542]">
+          <h2 className="mt-1 text-[42px] max-md:text-[32px] font-extrabold leading-none text-[#f5c542]">
             ₹{selectedRate / 10}
           </h2>
 
@@ -1684,7 +1756,7 @@ className={`${clickable} mt-5 w-full rounded-full bg-[#f5c542] px-5 py-3 font-bo
       )}
     </div>
 
-    <div className="mt-8 grid grid-cols-2 gap-6">
+    <div className="mt-8 grid grid-cols-2 gap-6 max-md:grid-cols-1">
       <div>
         <label className="mb-2 block text-white/70">Scheme Type</label>
         <select
@@ -1818,14 +1890,14 @@ className={`${clickable} mt-5 w-full rounded-full bg-[#f5c542] px-5 py-3 font-bo
 
 
             {dashboardTab === "flexi11" && (
-              <div id="flexi11-section" className="mt-10 rounded-[34px] bg-[#111] p-8 text-white shadow-2xl">
-                <div className="flex items-start justify-between">
+<div id="flexi11-section" className="mt-10 rounded-[34px] bg-[#111] p-8 text-white shadow-2xl max-md:p-5">
+                  <div className="flex items-start justify-between max-md:flex-col max-md:gap-4">
   <div>
     <p className="text-[14px] font-bold uppercase tracking-[4px] text-[#f5c542]">
       Flexi 11 Month Plan
     </p>
 
-    <h3 className="mt-2 font-serif text-[38px]">
+    <h3 className="mt-2 font-serif text-[38px] max-md:text-[28px]">
       Monthly Gold Savings Tracker
     </h3>
 
@@ -1834,7 +1906,7 @@ className={`${clickable} mt-5 w-full rounded-full bg-[#f5c542] px-5 py-3 font-bo
     </p>
   </div>
 
-  <div className="text-right">
+  <div className="text-right max-md:text-left">
     <p className="text-[14px] uppercase tracking-[2px] text-[#f5c542]">
       Today's Gold Rate
     </p>
@@ -1849,12 +1921,12 @@ className={`${clickable} mt-5 w-full rounded-full bg-[#f5c542] px-5 py-3 font-bo
   </div>
 </div>
 
-                <div className="mt-8 grid grid-cols-4 gap-5">
+               <div className="mt-8 grid grid-cols-4 gap-5 max-md:grid-cols-2 max-md:gap-3">
   {[1000, 2000, 5000, 10000, 15000, 20000, 25000, 50000].map((value) => (
     <button
       key={value}
       onClick={() => setMonthlyAmount(String(value))}
-className={`${clickable} rounded-2xl border border-[#f5c542]/30 px-5 py-6 text-[22px] font-bold ${        monthlyAmount === String(value)
+className={`${clickable} rounded-2xl border border-[#f5c542]/30 px-5 py-6 text-[22px] font-bold max-md:px-3 max-md:py-4 max-md:text-[16px] ${        monthlyAmount === String(value)
           ? "bg-[#f5c542] text-black shadow-lg"
           : "bg-[#fff8e6] text-black hover:bg-[#fde7a1]"
       }`}
@@ -1864,7 +1936,7 @@ className={`${clickable} rounded-2xl border border-[#f5c542]/30 px-5 py-6 text-[
   ))}
 </div>
 
-                <div className="mt-8 grid grid-cols-3 gap-5">
+                <div className="mt-8 grid grid-cols-3 gap-5 max-md:grid-cols-1 max-md:gap-3">
                   {[
                     [
                       "Monthly Amount",
@@ -1890,17 +1962,16 @@ className={`${clickable} rounded-2xl border border-[#f5c542]/30 px-5 py-6 text-[
                     </div>
                   ))}
                 </div>
-
-                <div className="mt-10 overflow-hidden rounded-2xl border border-[#ead7ae]">
-                  <table className="w-full border-collapse text-center">
-  <thead className="bg-[#f5c542] text-black">
+<div className="mt-10 w-full overflow-x-auto rounded-2xl border border-[#ead7ae]">
+  <table className="w-full min-w-[280px] border-collapse text-center text-[9px] leading-tight md:min-w-full md:text-[13px]">
+<thead className="bg-[#f5c542] text-black">
     <tr>
-      <th className="p-4">Month</th>
-      <th className="p-4">Due Date</th>
-      <th className="p-4">Amount</th>
-      <th className="p-4">Gold Rate</th>
-      <th className="p-4">Gold Grams</th>
-      <th className="p-4">Status</th>
+   <th className="whitespace-nowrap px-1.5 py-2 md:px-3 md:py-3">Month</th>
+<th className="whitespace-nowrap px-1.5 py-2 md:px-3 md:py-3">Gold Rate</th>
+<th className="whitespace-nowrap px-1.5 py-2 md:px-3 md:py-3">Amount</th>
+<th className="whitespace-nowrap px-1.5 py-2 md:px-3 md:py-3">Gold Grams</th>
+<th className="whitespace-nowrap px-1.5 py-2 md:px-3 md:py-3">Due Date</th>
+<th className="whitespace-nowrap px-1.5 py-2 md:px-3 md:py-3">Status</th>
     </tr>
   </thead>
 
@@ -1910,36 +1981,31 @@ className={`${clickable} rounded-2xl border border-[#f5c542]/30 px-5 py-6 text-[
 const grams = Number(monthlyAmount || 0) / (goldRate / 10);
     return (
       <tr key={index} className="border-b border-white/10">
-        <td className="p-4 font-bold">{index + 1}</td>
-
-        <td className="p-4">
+        <td className="whitespace-nowrap px-1.5 py-2 font-bold md:px-3 md:py-3">{index + 1}</td>
+        <td className="whitespace-nowrap px-1.5 py-2 md:px-3 md:py-3">
+          {isFirstMonth ? `₹${goldRate / 10}/gm` : "Upcoming"}
+        </td>
+            <td className="whitespace-nowrap px-1.5 py-2 md:px-3 md:py-3">
+  ₹{Number(monthlyAmount).toLocaleString("en-IN")}
+</td>
+        <td className="whitespace-nowrap px-1.5 py-2 md:px-3 md:py-3">
+          {isFirstMonth ? `${grams.toFixed(4)} gm` : "Upcoming"}
+        </td>
+         <td className="whitespace-nowrap px-1.5 py-2 md:px-3 md:py-3">
           {new Date(
             new Date().setMonth(new Date().getMonth() + index)
           ).toLocaleDateString("en-IN")}
         </td>
-
-        <td className="p-4">
-          ₹{Number(monthlyAmount).toLocaleString("en-IN")}
-        </td>
-
-        <td className="p-4">
-          {isFirstMonth ? `₹${goldRate / 10}/gm` : "Upcoming"}
-        </td>
-
-        <td className="p-4">
-          {isFirstMonth ? `${grams.toFixed(4)} gm` : "Upcoming"}
-        </td>
-
-        <td className="p-4">
-          <span
-            className={`rounded-full px-4 py-1 text-sm font-bold ${
-              isFirstMonth
-                ? "bg-yellow-200 text-yellow-800"
-                : "bg-gray-100 text-gray-500"
-            }`}
-          >
-            {isFirstMonth ? "Pay Now" : "Upcoming"}
-          </span>
+        <td className="whitespace-nowrap px-1.5 py-2 md:px-3 md:py-3">
+       <span
+  className={`whitespace-nowrap rounded-full px-1.5 py-0.5 text-[8px] font-bold md:px-3 md:text-[12px] ${
+    isFirstMonth
+      ? "bg-yellow-200 text-yellow-800"
+      : "bg-gray-100 text-gray-500"
+  }`}
+>
+  {isFirstMonth ? "Pay" : "Soon"}
+</span>
         </td>
       </tr>
     );
@@ -1951,25 +2017,25 @@ const grams = Number(monthlyAmount || 0) / (goldRate / 10);
          <button
   onClick={handleCreateFlexi11}
 className={`${clickable} mt-5 w-full rounded-full bg-[#f5c542] px-5 py-3 font-bold text-black`}>
-  Pay First Month & Activate Flexi 11
+  Pay First Month & Activate 
 </button>
               </div>
             )}
 
             {dashboardTab === "quickBuy" && (
-              <div id="quick-buy-section" className="mt-10 rounded-[34px] bg-[#070707] p-8 text-white shadow-2xl">
-                <p className="text-[14px] font-bold uppercase tracking-[4px] text-[#f5c542]">
+<div id="quick-buy-section" className="mt-10 rounded-[34px] bg-[#070707] p-8 text-white shadow-2xl max-md:p-5">
+                  <p className="text-[14px] font-bold uppercase tracking-[4px] text-[#f5c542]">
                   Quick Buy Gold & Silver
                 </p>
 
-                <h3 className="mt-2 font-serif text-[38px]">
+                <h3 className="mt-2 font-serif text-[38px] max-md:text-[28px]">
                   Buy Metal Instantly
                 </h3>
 
-                <div className="mt-8 grid grid-cols-3 gap-6">
+                <div className="mt-8 grid grid-cols-3 gap-3">
   <button
     onClick={() => setQuickMetal("Gold")}
-className={`${clickable} rounded-2xl px-6 py-5 text-[22px] font-bold ${
+className={`${clickable} rounded-2xl px-2 py-4 text-[13px] md:px-6 md:py-5 md:text-[22px] font-bold ${
       quickMetal === "Gold"
         ? "bg-[#f5c542] text-black"
         : "bg-white/10 text-white"
@@ -1980,7 +2046,7 @@ Gold ₹{((rates?.gold24Rate || 0) / 10).toFixed(0)}/gm
 
   <button
     onClick={() => setQuickMetal("Kamal Silver")}
-    className={`${clickable} rounded-2xl px-6 py-5 text-[22px] font-bold ${
+    className={`${clickable} rounded-2xl px-2 py-4 text-[13px] md:px-6 md:py-5 md:text-[22px] font-bold ${
       quickMetal === "Kamal Silver"
         ? "bg-[#f5c542] text-black"
         : "bg-white/10 text-white"
@@ -1991,7 +2057,7 @@ Kamal Silver ₹{((rates?.silver999Rate || 0) / 10).toFixed(2)}/gm
 
   <button
     onClick={() => setQuickMetal("Swastik Silver")}
-    className={`${clickable} rounded-2xl px-6 py-5 text-[22px] font-bold ${
+    className={`${clickable} rounded-2xl px-2 py-4 text-[13px] md:px-6 md:py-5 md:text-[22px] font-bold ${
       quickMetal === "Swastik Silver"
         ? "bg-[#f5c542] text-black"
         : "bg-white/10 text-white"
@@ -2001,7 +2067,7 @@ Swastik Silver ₹{((rates?.silver995Rate || 0) / 10).toFixed(2)}/gm
   </button>
 </div>
 
-                <div className="mt-8 grid grid-cols-[1fr_360px] gap-6">
+               <div className="mt-8 grid grid-cols-[1fr_360px] gap-6 max-md:grid-cols-1">
                   <div>
                     <label className="mb-2 block text-white/70">
                       Enter Amount
@@ -2015,7 +2081,7 @@ Swastik Silver ₹{((rates?.silver995Rate || 0) / 10).toFixed(2)}/gm
                       className="w-full rounded-2xl border border-white/20 bg-black/40 px-5 py-5 text-[26px] outline-none"
                     />
 
-                    <div className="mt-5 grid grid-cols-4 gap-3">
+                    <div className="mt-5 grid grid-cols-4 gap-3 max-md:grid-cols-2">
                       {[1000, 2000, 5000, 10000].map((value) => (
                         <button
                           key={value}
@@ -2032,7 +2098,7 @@ className={`${clickable} rounded-xl bg-white/10 py-3 font-bold hover:bg-[#f5c542
                     <h4 className="mt-3 text-[42px] font-bold text-[#f5c542]">
                       {quickWeight.toFixed(3)} gm
                     </h4>
-                    <p className="mt-2 text-white/60">
+                   <p className="mt-2 text-white/60 max-md:text-[14px]">
                       {quickMetal} will be saved
                     </p>
                   </div>
@@ -2051,10 +2117,10 @@ className={`${clickable} rounded-xl bg-white/10 py-3 font-bold hover:bg-[#f5c542
       )}
       {selectedScheme && (
   <div className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/70 px-6">
-    <div className="relative max-h-[90vh] w-full max-w-[1150px] overflow-y-auto rounded-[34px] bg-white p-8 shadow-2xl">
-      <button
+<div className="relative max-h-[90vh] w-full max-w-[1150px] overflow-y-auto rounded-[34px] bg-white p-8 shadow-2xl max-md:rounded-[28px] max-md:p-4">
+          <button
         onClick={closeSchemeDetails}
-        className="absolute right-6 top-6 flex h-12 w-12 items-center justify-center rounded-full bg-black text-2xl font-bold text-white"
+className="absolute right-4 top-4 z-10 flex h-11 w-11 items-center justify-center rounded-full bg-black text-2xl font-bold text-white max-md:h-10 max-md:w-10"
       >
         ×
       </button>
@@ -2065,11 +2131,11 @@ className={`${clickable} rounded-xl bg-white/10 py-3 font-bold hover:bg-[#f5c542
             Pre-Booking Scheme Details
           </p>
 
-          <h2 className="mt-2 font-serif text-[38px]">
+          <h2 className="mt-2 font-serif text-[38px]  max-md:text-[28px]">
             {selectedScheme.schemeSubType?.replaceAll("_", " ")}
           </h2>
 
-          <div className="mt-8 grid grid-cols-4 gap-5">
+          <div className="mt-8 grid grid-cols-4 gap-5 max-md:grid-cols-2 max-md:gap-3">
             {[
               ["Metal", selectedScheme.metalName || "-"],
               [
@@ -2086,21 +2152,21 @@ className={`${clickable} rounded-xl bg-white/10 py-3 font-bold hover:bg-[#f5c542
               ["Benefit", selectedScheme.benefitText || "-"],
               ["Maturity Date", formatDate(selectedScheme.maturityDate)],
             ].map(([title, value]) => (
-              <div key={title} className="rounded-2xl bg-[#fbf7ef] p-5">
-                <p className="text-gray-500">{title}</p>
-                <h4 className="mt-2 text-[20px] font-bold text-[#b98213]">
+              <div key={title} className="rounded-2xl bg-[#fbf7ef] p-5 max-md:p-4">
+               <p className="text-gray-500 max-md:text-[13px]">{title}</p>
+<h4 className="mt-2 break-words text-[20px] font-bold text-[#b98213] max-md:text-[16px]">
                   {value}
                 </h4>
               </div>
             ))}
           </div>
 
-          <div className="mt-8 rounded-[24px] bg-black p-6 text-white">
+          <div className="mt-6 rounded-[24px] bg-black p-6 text-white max-md:p-5">
             <h3 className="text-[24px] font-bold text-[#f5c542]">
               Timeline
             </h3>
 
-            <div className="mt-5 grid grid-cols-3 gap-5">
+           <div className="mt-5 grid grid-cols-3 gap-5 max-md:gap-3"> 
               <div>
                 <p className="text-white/50">Created Date</p>
                 <b>{formatDate(selectedScheme.createdAt)}</b>
@@ -2126,11 +2192,11 @@ className={`${clickable} rounded-xl bg-white/10 py-3 font-bold hover:bg-[#f5c542
             Flexi 11 Scheme Details
           </p>
 
-          <h2 className="mt-2 font-serif text-[38px]">
+          <h2 className="mt-2 font-serif text-[38px]  max-md:text-[28px]">
             Monthly Gold Savings Tracker
           </h2>
 
-          <div className="mt-8 grid grid-cols-4 gap-5">
+          <div className="mt-8 grid grid-cols-4 gap-5 max-md:grid-cols-2 max-md:gap-3">
             {[
               ["Metal", selectedScheme.metalName || "Gold"],
               ["Monthly Amount", formatMoney(selectedScheme.monthlyAmount)],
@@ -2141,7 +2207,7 @@ className={`${clickable} rounded-xl bg-white/10 py-3 font-bold hover:bg-[#f5c542
               ["Next Due Date", formatDate(selectedScheme.nextDueDate)],
               ["Status", selectedScheme.status],
             ].map(([title, value]) => (
-              <div key={title} className="rounded-2xl bg-[#fbf7ef] p-5">
+              <div key={title} className="rounded-2xl bg-[#fbf7ef] p-5 max-md:p-4">
                 <p className="text-gray-500">{title}</p>
                 <h4 className="mt-2 text-[20px] font-bold text-[#b98213]">
                   {value}
@@ -2150,18 +2216,18 @@ className={`${clickable} rounded-xl bg-white/10 py-3 font-bold hover:bg-[#f5c542
             ))}
           </div>
 
-          <div className="mt-8 overflow-hidden rounded-2xl border border-[#ead7ae]">
-          <table className="w-full border-collapse text-center">
+<div className="mt-10 w-full overflow-x-auto rounded-2xl border border-[#ead7ae]">
+  <table className="min-w-[350px] border-collapse text-center text-[10px] leading-tight md:min-w-full md:text-[13px]">
   <thead className="bg-[#f5c542] text-black">
     <tr>
-      <th className="p-4">Month</th>
-      <th className="p-4">Due Date</th>
-      <th className="p-4">Paid Date</th>
-      <th className="p-4">Amount</th>
-      <th className="p-4">Gold Rate</th>
-      <th className="p-4">Gold Grams</th>
-      <th className="p-4">Method</th>
-      <th className="p-4">Status</th>
+     <th className="whitespace-nowrap px-2 py-3">Month</th>
+<th className="whitespace-nowrap px-2 py-3">Due Date</th>
+<th className="whitespace-nowrap px-2 py-3">Paid Date</th>
+<th className="whitespace-nowrap px-2 py-3">Amount</th>
+<th className="whitespace-nowrap px-2 py-3">Gold Rate</th>
+<th className="whitespace-nowrap px-2 py-3">Gold Grams</th>
+<th className="whitespace-nowrap px-2 py-3">Type</th>
+<th className="whitespace-nowrap px-2 py-3">Status</th>
     </tr>
   </thead>
 
@@ -2179,37 +2245,37 @@ dueDate.setDate(dueDate.getDate() + index * 2);
 
         return (
           <tr key={index} className="border-b">
-            <td className="p-4 font-bold">{monthNumber}</td>
+            <td className="px-2 py-3 font-bold">{monthNumber}</td>
 
-            <td className="p-4">
+            <td className="p-2 md:p-4">
               {dueDate.toLocaleDateString("en-IN")}
             </td>
 
-            <td className="p-4">
+            <td className="p-2 md:p-4">
               {payment ? formatDate(payment.paymentDate) : "-"}
             </td>
 
-            <td className="p-4">
+            <td className="p-2 md:p-4">
               {payment ? formatMoney(payment.paidAmount) : "-"}
             </td>
 
-            <td className="p-4">
+            <td className="p-2 md:p-4">
               {payment ? `₹${payment.ratePerGram}/gm` : "-"}
             </td>
 
-            <td className="p-4">
+            <td className="p-2 md:p-4">
               {payment
                 ? `${Number(payment.metalWeight || 0).toFixed(4)} gm`
                 : "-"}
             </td>
 
-            <td className="p-4">
+            <td className="p-2 md:p-4">
               {payment?.paymentMethod || "-"}
             </td>
 
-            <td className="p-4">
+            <td className="p-2 md:p-4">
               <span
-                className={`rounded-full px-4 py-1 text-sm font-bold ${
+                className={`rounded-full px-2 py-1 text-[10px] font-bold md:px-4 md:text-sm ${
                   payment
                     ? "bg-green-100 text-green-700"
                     : "bg-gray-100 text-gray-500"
@@ -2234,44 +2300,44 @@ dueDate.setDate(dueDate.getDate() + index * 2);
             Quick Buy Transactions
           </p>
 
-          <h2 className="mt-2 font-serif text-[38px]">
+          <h2 className="mt-2 font-serif text-[38px]  max-md:text-[28px]">
             {selectedScheme.metalName} Purchase History
           </h2>
 
-          <div className="mt-8 grid grid-cols-3 gap-5">
-            <div className="rounded-2xl bg-[#fbf7ef] p-5">
-              <p className="text-gray-500">Total Transactions</p>
-              <h4 className="mt-2 text-[24px] font-bold text-[#b98213]">
-                {selectedScheme.transactionCount}
-              </h4>
-            </div>
+        <div className="mt-8 grid grid-cols-3 gap-5 max-md:grid-cols-2 max-md:gap-3">
+  <div className="rounded-2xl bg-[#fbf7ef] p-5 max-md:p-4">
+    <p className="text-gray-500">Total Transactions</p>
+    <h4 className="mt-2 text-[20px] font-bold text-[#b98213] max-md:text-[20px]">
+      {selectedScheme.transactionCount}
+    </h4>
+  </div>
 
-            <div className="rounded-2xl bg-[#fbf7ef] p-5">
-              <p className="text-gray-500">Total Amount</p>
-              <h4 className="mt-2 text-[24px] font-bold text-[#b98213]">
-                {formatMoney(selectedScheme.totalAmount)}
-              </h4>
-            </div>
+  <div className="rounded-2xl bg-[#fbf7ef] p-5 max-md:p-4">
+    <p className="text-gray-500">Total Amount</p>
+    <h4 className="mt-2 text-[20px] font-bold text-[#b98213] max-md:text-[20px]">
+      {formatMoney(selectedScheme.totalAmount)}
+    </h4>
+  </div>
 
-            <div className="rounded-2xl bg-[#fbf7ef] p-5">
-              <p className="text-gray-500">Total Weight</p>
-              <h4 className="mt-2 text-[24px] font-bold text-[#b98213]">
-                {Number(selectedScheme.totalWeight || 0).toFixed(4)} gm
-              </h4>
-            </div>
-          </div>
+  <div className="flex flex-col items-center justify-center rounded-2xl bg-[#111] p-5 text-center text-white max-md:col-span-2 max-md:p-2">
+  <p className="text-white/60">Total Weight</p>
+  <h4 className="mt-2 text-[20px] font-bold text-[#f5c542] max-md:text-[22px]">
+    {Number(selectedScheme.totalWeight || 0).toFixed(4)} gm
+  </h4>
+</div>
+</div>
 
-          <div className="mt-8 overflow-hidden rounded-2xl border border-[#ead7ae]">
-            <table className="w-full border-collapse text-center">
-              <thead className="bg-[#f5c542] text-black">
+<div className="mt-8 w-full overflow-x-auto rounded-2xl border border-[#ead7ae]">
+  <table className="w-full min-w-[300px] border-collapse text-center text-[10px] leading-tight md:min-w-full md:text-[13px]">
+         <thead className="bg-[#f5c542] text-black">
                 <tr>
-                  <th className="p-4">Date</th>
-                  <th className="p-4">Metal</th>
-                  <th className="p-4">Amount</th>
-                  <th className="p-4">Rate</th>
-                  <th className="p-4">Weight</th>
-                  <th className="p-4">Payment Type</th>
-                  <th className="p-4">Status</th>
+                 <th className="whitespace-nowrap px-2 py-3">Date</th>
+<th className="whitespace-nowrap px-2 py-3">Metal</th>
+<th className="whitespace-nowrap px-2 py-3">Amount</th>
+<th className="whitespace-nowrap px-2 py-3">Rate</th>
+<th className="whitespace-nowrap px-2 py-3">Weight</th>
+<th className="whitespace-nowrap px-2 py-3">Type</th>
+<th className="whitespace-nowrap px-2 py-3">Status</th>
                 </tr>
               </thead>
 
@@ -2281,17 +2347,17 @@ dueDate.setDate(dueDate.getDate() + index * 2);
 
                   return (
                     <tr key={item.schemeId} className="border-b">
-                      <td className="p-4">{formatDate(item.createdAt)}</td>
-                      <td className="p-4 font-bold">{item.metalName}</td>
-                      <td className="p-4">{formatMoney(item.amount)}</td>
-                      <td className="p-4">₹{item.ratePerGram || 0}/gm</td>
-                      <td className="p-4">
+                      <td className="whitespace-nowrap px-2 py-3 md:px-4">{formatDate(item.createdAt)}</td>
+                     <td className="whitespace-nowrap px-2 py-3 md:px-4 font-bold">{item.metalName}</td>
+                      <td className="whitespace-nowrap px-2 py-3 md:px-4">{formatMoney(item.amount)}</td>
+                      <td className="whitespace-nowrap px-2 py-3 md:px-4">₹{item.ratePerGram || 0}/gm</td>
+                      <td className="whitespace-nowrap px-2 py-3 md:px-4">
                         {Number(item.metalWeight || 0).toFixed(4)} gm
                       </td>
-                      <td className="p-4">{payment?.paymentMethod || "-"}</td>
-                      <td className="p-4">
-                        <span className="rounded-full bg-blue-100 px-4 py-1 text-sm font-bold text-blue-700">
-                          {item.status}
+                      <td className="whitespace-nowrap px-2 py-3 md:px-4">{payment?.paymentMethod || "-"}</td>
+                     <td className="whitespace-nowrap px-2 py-3 md:px-4">
+<span className="whitespace-nowrap rounded-full px-2 py-0.5 text-[9px] font-bold md:text-[12px]">
+                              {item.status}
                         </span>
                       </td>
                     </tr>

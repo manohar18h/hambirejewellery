@@ -54,7 +54,7 @@ const NavBar = () => {
 
   return (
     <div className="relative" onMouseLeave={handleMenuLeave}>
-      <nav className="border-b border-gray-200 bg-white">
+      <nav className="border-b border-gray-200 bg-white max-md:hidden">
         <div className="mx-auto flex h-[38px] max-w-[1200px] items-center justify-center gap-4 px-3 text-[15px] font-normal text-gray-900">
           {" "}
           <span className="cursor-pointer text-gray-700 transition hover:text-[#C9A24D]">

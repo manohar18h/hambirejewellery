@@ -23,21 +23,21 @@ const PreBookingScheme = () => {
   const clickable = "clickable-ui";
 
   return (
-    <div className="min-h-screen bg-[#fbf7ef]">
-      <section className="relative min-h-screen overflow-hidden bg-[#100903] px-8 text-white">
-        <div className="absolute inset-0 bg-[radial-gradient(circle_at_right,#f5c54244,transparent_40%)]" />
+    <div className="min-h-screen bg-[#fbf7ef] max-md:pb-[80px]">
+<section className="relative min-h-screen overflow-hidden bg-[#100903] px-8 text-white max-md:min-h-auto max-md:px-4 max-md:py-10">
+          <div className="absolute inset-0 bg-[radial-gradient(circle_at_right,#f5c54244,transparent_40%)]" />
 
-        <div className="relative z-10 mx-auto grid min-h-screen max-w-[1500px] grid-cols-2 items-center gap-12">
-          <div>
+<div className="relative z-10 mx-auto grid min-h-screen max-w-[1500px] grid-cols-2 items-center gap-12 max-md:min-h-auto max-md:grid-cols-1 max-md:gap-8">
+            <div>
             <p className="text-[15px] font-bold uppercase tracking-[5px] text-[#f5c542]">
               Hambire Exchange Utsav
             </p>
 
-            <h1 className="mt-5 font-serif text-[70px] leading-[1.05]">
+            <h1 className="mt-5 font-serif text-[70px] leading-[1.05] max-md:text-[38px]">
               Jewellery Pre-Booking & Exchange Scheme
             </h1>
 
-            <p className="mt-5 text-[20px] font-semibold uppercase leading-8 text-[#f5c542]">
+<p className="mt-6 max-w-[700px] text-[19px] leading-8 text-white/75 max-md:text-[16px] max-md:leading-7">
               Something valuable, something different. 100% no V.A. charges for
               eligible jewellery.
             </p>
@@ -50,17 +50,17 @@ const PreBookingScheme = () => {
 
             <button
               onClick={() => navigate("/schemes/register?scheme=pre-booking")}
-className={`${clickable} mt-9 rounded-full bg-[#f5c542] px-10 py-4 text-[17px] font-bold text-black`}            >
-              Join Now
+className={`${clickable} mt-9 rounded-full bg-[#f5c542] px-10 py-4 text-[17px] font-bold text-black max-md:w-full`}
+>              Join Now
             </button>
           </div>
 
-          <div className="rounded-[42px] border border-white/10 bg-white/10 p-10 backdrop-blur-xl">
+<div className="rounded-[42px] border border-white/10 bg-white/10 p-10 backdrop-blur-xl max-md:p-6">
             <Gem className="h-24 w-24 text-[#f5c542]" />
 
-            <h2 className="mt-8 font-serif text-[42px]">Save VA Charges</h2>
+            <h2 className="mt-8 font-serif text-[42px] max-md:text-[30px]">Save VA Charges</h2>
 
-            <p className="mt-4 text-[18px] leading-8 text-white/70">
+            <p className="mt-4 text-[18px] leading-8 text-white/70 max-md:text-[16px] max-md:leading-7">
               Pre-book jewellery today and buy after the scheme period with
               eligible value addition benefits. Or exchange old jewellery for
               new jewellery and make the most of your stored gold value.
@@ -69,19 +69,19 @@ className={`${clickable} mt-9 rounded-full bg-[#f5c542] px-10 py-4 text-[17px] f
         </div>
       </section>
 
-      <section className="px-8 py-20">
+      <section className="px-8 py-20 max-md:px-4 max-md:py-12">
         <div className="mx-auto max-w-[1450px]">
-          <div className="rounded-[34px] bg-white p-10 shadow-xl">
+          <div className="rounded-[34px] bg-white p-10 shadow-xl max-md:p-5">
             <p className="text-[14px] font-bold uppercase tracking-[4px] text-[#b98213]">
               Scheme Overview
             </p>
 
-            <h2 className="mt-3 font-serif text-[44px] text-[#111]">
+            <h2 className="mt-3 font-serif text-[44px] text-[#111] max-md:text-[30px]">
               Buy Jewellery With Smart Savings
             </h2>
 
-            <div className="mt-8 grid grid-cols-2 gap-10 text-[18px] leading-9 text-gray-700">
-              <div>
+<div className="mt-8 grid grid-cols-2 gap-10 text-[18px] leading-9 text-gray-700 max-md:grid-cols-1 max-md:gap-5 max-md:text-[16px] max-md:leading-7">
+                <div>
                 <p>
                   There is nothing like this in the jewellery market. This
                   Jewellery Pre-Booking Scheme helps reduce the burden of
@@ -109,7 +109,7 @@ className={`${clickable} mt-9 rounded-full bg-[#f5c542] px-10 py-4 text-[17px] f
             </div>
           </div>
 
-          <div className="mt-14 grid grid-cols-4 gap-6">
+          <div className="mt-10 grid grid-cols-4 gap-6 max-md:grid-cols-2 max-md:gap-4">
             {[
               ["No Wastage Benefits", <BadgePercent />],
               ["Old Gold Exchange", <RefreshCcw />],
@@ -118,50 +118,50 @@ className={`${clickable} mt-9 rounded-full bg-[#f5c542] px-10 py-4 text-[17px] f
             ].map(([title, icon]) => (
               <div
                 key={String(title)}
-                className="rounded-[28px] bg-white p-8 shadow-lg"
+                className="rounded-[28px] bg-white p-8 shadow-lg max-md:p-5"
               >
-                <div className="mb-6 flex h-16 w-16 items-center justify-center rounded-2xl bg-[#fff3cf] text-[#b98213]">
+                <div className="mb-6 flex h-16 w-16 items-center justify-center rounded-2xl bg-[#fff3cf] text-[#b98213] max-md:h-12 max-md:w-12">         
                   {icon}
                 </div>
 
-                <h3 className="font-serif text-[24px]">{title}</h3>
+                <h3 className="font-serif text-[24px] max-md:text-[18px]">{title}</h3>
               </div>
             ))}
           </div>
 
-          <div className="mt-20 rounded-[34px] bg-[#111] p-8 text-white shadow-2xl">
-            <div className="mb-8 flex items-center justify-between">
+<div className="mt-14 rounded-[34px] bg-[#111] p-8 text-white shadow-2xl max-md:p-5">
+              <div className="mb-8 flex items-center justify-between">
               <div>
                 <p className="text-[14px] font-bold uppercase tracking-[4px] text-[#f5c542]">
                   Benefit Timeline
                 </p>
 
-                <h2 className="mt-2 font-serif text-[42px]">
+                <h2 className="mt-2 font-serif text-[42px] max-md:text-[30px]">
                   V.A. Charges Benefit
                 </h2>
               </div>
 
-              <Sparkles className="h-14 w-14 text-[#f5c542]" />
+              <Sparkles className="h-14 w-14 text-[#f5c542] max-md:h-9 max-md:w-9" />
             </div>
 
             <div className="overflow-hidden rounded-2xl border border-white/10">
               {rows.map(([month, benefit]) => (
                 <div
                   key={month}
-                  className="grid grid-cols-[300px_1fr] border-b border-white/10 last:border-b-0"
+className="grid grid-cols-[130px_1fr] border-b border-white/10 last:border-b-0 md:grid-cols-[300px_1fr]"
                 >
-                  <div className="bg-white/10 p-6 text-[18px] font-bold">
+                  <div className="bg-white/10 p-3 text-[13px] font-bold md:p-6 md:text-[18px]">
                     {month}
                   </div>
 
-                  <div className="p-6 text-[17px] text-white/80">
+                  <div className="p-3 text-[13px] text-white/80 md:p-6 md:text-[17px]">
                     {benefit}
                   </div>
                 </div>
               ))}
             </div>
 
-            <div className="mt-10 rounded-[24px] bg-white/10 p-7 text-[17px] leading-8 text-white/75">
+<div className="mt-10 rounded-[24px] bg-white/10 p-7 text-[17px] leading-8 text-white/75 max-md:p-5 max-md:text-[15px] max-md:leading-7">
               <p>
                 This scheme helps customers plan their jewellery purchase in
                 advance and enjoy better savings on value addition charges.
@@ -172,8 +172,8 @@ className={`${clickable} mt-9 rounded-full bg-[#f5c542] px-10 py-4 text-[17px] f
 
             <button
               onClick={() => navigate("/schemes/register?scheme=pre-booking")}
-className={`${clickable} mx-auto mt-10 flex items-center gap-3 rounded-full bg-[#f5c542] px-10 py-4 font-bold text-black`}            >
-              Join Pre-Booking Scheme <ArrowRight />
+className={`${clickable} mx-auto mt-10 flex items-center justify-center gap-3 rounded-full bg-[#f5c542] px-10 py-4 font-bold text-black max-md:w-full`}
+>              Join Pre-Booking Scheme <ArrowRight />
             </button>
           </div>
         </div>

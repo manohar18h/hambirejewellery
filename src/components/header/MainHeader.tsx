@@ -5,7 +5,8 @@ import goldlogo from "../../assets/goldicon.png";
 import { useNavigate } from "react-router-dom";
 import SearchBar from "./SearchBar";
 
-import { User, Heart, ShoppingBag, Menu, X, Bell } from "lucide-react";
+import { User, Heart, ShoppingBag, Menu, X, Bell, Home,  BadgeIndianRupee,
+  Gem,  } from "lucide-react";
 import { getSchemeCustomerProfile, getSchemeDashboard } from "../../api/schemeApi";
 type MetalPrices = {
   gold24Rate: number;
@@ -133,41 +134,61 @@ useEffect(() => {
 }, []);
 
 
-
+const bottomMenus = [
+  { label: "Home", icon: Home, action: () => navigate("/") },
+  { label: "You", icon: User, action: () => navigate("/scheme-profile") },
+  { label: "Rate", icon: BadgeIndianRupee, action: fetchRates },
+  { label: "Scheme", icon: Gem, action: () => navigate("/schemes") },
+  { label: "Cart", icon: ShoppingBag, action: () => {} },
+  { label: "Menu", icon: Menu, action: () => {} },
+];
 
 
   return (
     <>
-      <div className="-mt-[4px] flex h-[65px] items-center justify-between px-8">
-        <div className="flex items-center gap-2">
-          <img src={hjlogo} className="h-[54px] w-[54px] object-contain" />
-          <div className="leading-tight">
-            <div className="font-bold text-[26px] leading-none tracking-wide text-[#FE7F00]">
-              Hambire
-            </div>
-            <div className="mt-[1px] text-[11px] font-bold tracking-[4px] text-gray-500">
-              Jewellery
-            </div>
-          </div>
-        </div>
+<div className="-mt-[4px] flex h-[55px] items-center justify-between gap-6 px-8
+  max-md:h-auto max-md:px-3 max-md:py-2">
 
-        <div className="flex items-center gap-4">
-          <div className="text-[16px] text-gray-700 whitespace-nowrap">
+  <button
+    type="button"
+    onClick={() => navigate("/")}
+    className="flex shrink-0 items-center gap-1 border-0 bg-transparent p-0 outline-none"
+  >
+    <img
+      src={hjlogo}
+      className="h-[54px] w-[54px] object-contain max-md:h-[34px] max-md:w-[34px]"
+    />
+
+    <div className="leading-tight text-left max-md:w-[78px]">
+      <div className="text-[26px] font-bold leading-none tracking-wide text-[#FE7F00] max-md:text-[18px]">
+        Hambire
+      </div>
+
+      <div className="mt-[1px] text-[11px] font-bold tracking-[4px] text-gray-500 max-md:text-[7px] max-md:tracking-[2px]">
+        Jewellery
+      </div>
+    </div>
+  </button>
+
+ 
+
+<div className="flex items-center gap-5 max-md:flex-col max-md:items-stretch max-md:gap-3">          <div className="text-[16px] text-gray-700 whitespace-nowrap max-md:hidden">
             📞 +91 98765 43210
           </div>
 
           <SearchBar />
 
-          <button
-            onClick={fetchRates}
-            className={`${clickable} flex items-center gap-1 cursor-pointer bg-[#F5C542] hover:bg-[#E6B800] text-[#2F2F2F] font-bold m-5 px-4 py-1 rounded-full text-[14px] transition`}
-          >
-            Today&apos;s Rate
-          </button>
+         <button
+  onClick={fetchRates}
+  className={`${clickable} flex h-[38px] items-center justify-center rounded-full bg-[#F5C542] px-6 text-[14px] font-bold text-[#2F2F2F] transition hover:bg-[#E6B800] max-md:hidden`}
+>
+  Today&apos;s Rate
+</button>
 
-          <button
+<button
   onClick={() => navigate("/schemes")}
-className={`${clickable} flex items-center gap-1 whitespace-nowrap text-[16px] m-5 px-3 py-1 rounded-full hover:text-yellow-600`}>
+  className={`${clickable} flex h-[38px] items-center gap-2 whitespace-nowrap rounded-full px-3 text-[16px] hover:text-yellow-600 max-md:hidden`}
+>
   <img
     src={goldlogo}
     alt="Gold Scheme"
@@ -177,13 +198,20 @@ className={`${clickable} flex items-center gap-1 whitespace-nowrap text-[16px] m
 </button>
         </div>
 
-        <div className="flex items-center gap-3">
-          <button
-  onClick={() => navigate("/scheme-profile")}
-  className={clickable}
->
-  <User className="h-[25px] w-[25px] hover:text-red-600 transition" />
-</button>
+       <div className="flex items-center gap-3 max-md:hidden">
+  <button
+    onClick={() => navigate("/")}
+    className={clickable}
+  >
+    <Home className="h-[25px] w-[25px] hover:text-red-600 transition" />
+  </button>
+
+  <button
+    onClick={() => navigate("/scheme-profile")}
+    className={clickable}
+  >
+    <User className="h-[25px] w-[25px] hover:text-red-600 transition" />
+  </button>
          <button className={clickable}>
   <Heart className="h-[25px] w-[25px] hover:text-red-600 transition" />
 </button>
@@ -249,6 +277,22 @@ className={`${clickable} flex items-center gap-1 whitespace-nowrap text-[16px] m
       </div>
 
       <div className="-mt-[4px] h-[0.5px] w-full bg-[#beae92]" />
+      <div className="fixed bottom-0 left-0 z-[9998] hidden w-full border-t border-gray-200 bg-white shadow-[0_-4px_15px_rgba(0,0,0,0.08)] max-md:flex">
+  {bottomMenus.map((item) => {
+    const Icon = item.icon;
+
+    return (
+      <button
+        key={item.label}
+        onClick={item.action}
+        className="flex flex-1 flex-col items-center justify-center gap-1 py-2 text-black"
+      >
+        <Icon className="h-[24px] w-[24px]" />
+        <span className="text-[11px] font-semibold">{item.label}</span>
+      </button>
+    );
+  })}
+</div>
 
     {showRates && rates && (
   <div className="fixed inset-0 z-[9999] flex items-start justify-center bg-black/40 pt-10">

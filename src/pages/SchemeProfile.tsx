@@ -361,15 +361,15 @@ const SchemeProfile = () => {
   }
 
   return (
-    <div className="min-h-screen bg-[#fbf7ef] px-8 py-14">
+    <div className="min-h-screen bg-[#fbf7ef] px-8 py-14 max-md:px-4 max-md:py-6 max-md:pb-[90px]">
       {step !== "profile" ? (
-        <div className="mx-auto grid max-w-[1450px] grid-cols-[420px_1fr] gap-10">
-          <div className="rounded-[34px] bg-gradient-to-br from-[#120902] via-[#251505] to-black p-8 text-white shadow-2xl">
+        <div className="mx-auto grid max-w-[1450px] grid-cols-[420px_1fr] gap-10 max-md:grid-cols-1 max-md:gap-5">
+          <div className="rounded-[34px] bg-gradient-to-br from-[#120902] via-[#251505] to-black p-8 text-white shadow-2xl max-md:p-6">
             <p className="text-[13px] font-bold uppercase tracking-[4px] text-[#f5c542]">
               Hambire Jewellery
             </p>
 
-            <h1 className="mt-4 font-serif text-[42px] leading-tight">
+            <h1 className="mt-4 font-serif text-[42px] leading-tight max-md:text-[32px]">
               Customer Account
             </h1>
 
@@ -398,18 +398,18 @@ const SchemeProfile = () => {
             </div>
           </div>
 
-          <div className="rounded-[34px] bg-white p-10 shadow-2xl">
+          <div className="rounded-[34px] bg-white p-10 shadow-2xl max-md:p-5">
             {step === "login" && (
               <>
                 <p className="text-[14px] font-bold uppercase tracking-[4px] text-[#b98213]">
                   Customer Login
                 </p>
 
-                <h2 className="mt-3 font-serif text-[44px]">
+                <h2 className="mt-3 font-serif text-[44px] max-md:text-[30px]">
                   Login to Your Account
                 </h2>
 
-                <div className="mt-10 grid grid-cols-2 gap-6">
+                <div className="mt-10 grid grid-cols-2 gap-6 max-md:grid-cols-1 max-md:mt-6">
                   <div>
                     <label className="mb-2 block font-semibold text-gray-700">
                       Mobile Number
@@ -626,29 +626,27 @@ const SchemeProfile = () => {
           </div>
         </div>
       ) : (
-        <div className="mx-auto max-w-[1250px] rounded-[36px] bg-white p-10 shadow-2xl">
-          <div className="flex items-start justify-between">
+<div className="mx-auto max-w-[1250px] rounded-[36px] bg-white p-10 shadow-2xl max-md:p-5">    
+        <div className="flex items-start justify-between max-md:flex-col max-md:gap-4">
             <div>
               <p className="text-[14px] font-bold uppercase tracking-[4px] text-[#b98213]">
                 Hambire Jewellery
               </p>
 
-              <h1 className="mt-3 font-serif text-[48px]">
+             <h1 className="mt-3 font-serif text-[48px] max-md:text-[32px]">
                 Customer Account Profile
               </h1>
             </div>
 
             <button
               onClick={logoutCustomer}
-              className={`${clickable} rounded-full border border-gray-300 px-7 py-3 font-bold text-gray-700`}
-            >
+className={`${clickable} rounded-full border border-gray-300 px-7 py-3 font-bold text-gray-700 max-md:w-full`}            >
               Logout
             </button>
           </div>
 
           {!profile?.aadhaarVerified && (
-            <div className="mt-8 flex gap-4 rounded-[24px] border border-yellow-300 bg-yellow-50 p-6 text-yellow-800">
-              <ShieldAlert className="h-8 w-8" />
+<div className="mt-8 flex gap-4 rounded-[24px] border border-yellow-300 bg-yellow-50 p-6 text-yellow-800 max-md:flex-col max-md:p-4">              <ShieldAlert className="h-8 w-8" />
               <div>
                 <h3 className="text-[20px] font-bold">
                   Scheme Access Verification Required
@@ -673,7 +671,7 @@ const SchemeProfile = () => {
             </div>
           )}
 
-          <div className="mt-10 grid grid-cols-2 gap-7">
+          <div className="mt-10 grid grid-cols-2 gap-7 max-md:grid-cols-1 max-md:gap-4">
             {[
               ["Name", profile?.name, <User />],
               ["Mobile", profile?.phoneNumber, <Phone />],
@@ -701,7 +699,7 @@ const SchemeProfile = () => {
                   <p className="font-bold">{label}</p>
                 </div>
 
-                <h3 className="mt-3 text-[22px] font-bold text-black">
+                <h3 className="mt-3 break-words text-[22px] font-bold text-black max-md:text-[18px]">
                   {String(value)}
                 </h3>
               </div>
@@ -709,12 +707,12 @@ const SchemeProfile = () => {
           </div>
 
           {!profile?.aadhaarVerified && (
-            <div className="mt-12 rounded-[28px] bg-[#111] p-8 text-white">
-              <h3 className="font-serif text-[30px] text-[#f5c542]">
+<div className="mt-12 rounded-[28px] bg-[#111] p-8 text-white max-md:p-5">            
+   <h3 className="font-serif text-[30px] text-[#f5c542] max-md:text-[24px]">
                 Verify Aadhaar for Scheme Access
               </h3>
 
-              <div className="mt-6 grid grid-cols-2 gap-6">
+              <div className="mt-6 grid grid-cols-2 gap-6 max-md:grid-cols-1">
                 <div>
                   <label className="mb-2 block text-white/70">
                     Aadhaar Number
