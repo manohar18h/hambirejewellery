@@ -1,5 +1,30 @@
 import { useEffect, useState } from "react";
 import hjIcone from "../assets/hjicone.png";
+import diamond from "../assets/diamondimage.png"
+import gold from "../assets/goldimage.png"
+import jewelleryset1 from "../assets/jewelleryset1.png"
+import jewelleryset2 from "../assets/jewelleryset2.png"
+import jewelleryset3 from "../assets/jewelleryset3.png"
+import pendent1 from "../assets/pendent1.png"
+import pendent2 from "../assets/pendent2.png"
+import pendent3 from "../assets/pendent3.png"
+import ring1 from "../assets/ring1.png"
+import ring2 from "../assets/ring2.png"
+import ring3 from "../assets/ring3.png"
+import women from "../assets/women.png"
+import men from "../assets/men.png"
+import kid from "../assets/kid.png"
+import earring1 from "../assets/earring1.png"
+import earring2 from "../assets/earring2.png"
+import earring3 from "../assets/earring3.png"
+import bangle1 from "../assets/bangle1.png"
+import bangle2 from "../assets/bangle2.png"
+import bangle3 from "../assets/bangle3.png"
+import mangal1 from "../assets/mangal1.png"
+import mangal2 from "../assets/mangal2.png"
+import mangal3 from "../assets/mangal3.png"
+import gemstone from "../assets/gemstoneimage.png"
+import platinum from "../assets/platinumimage.png"
 import hallmark from "../assets/hallmark.png";
 import certified from "../assets/certified2.png";
 import easyexchange from "../assets/easyexchange.png";
@@ -36,44 +61,50 @@ const collections = [
 const shopCategories = [
   {
     title: "Jewellery Sets",
-    images: [
-      "https://images.unsplash.com/photo-1601121141461-9d6647bca1ed?w=900",
-      "https://images.unsplash.com/photo-1602173574767-37ac01994b2a?w=900",
-    ],
+  images: [
+  jewelleryset1,
+  jewelleryset2,
+  jewelleryset3,
+],
   },
   {
     title: "Pendants",
-    images: [
-      "https://images.unsplash.com/photo-1611652022419-a9419f74343d?w=900",
-      "https://images.unsplash.com/photo-1515562141207-7a88fb7ce338?w=900",
-    ],
+     images: [
+  pendent1,
+  pendent2,
+  pendent3,
+],
   },
   {
     title: "Rings",
-    images: [
-      "https://images.unsplash.com/photo-1605100804763-247f67b3557e?w=900",
-      "https://images.unsplash.com/photo-1602751584552-8ba73aad10e1?w=900",
-    ],
+     images: [
+  ring1,
+  ring2,
+  ring3,
+],
   },
   {
     title: "Earrings",
     images: [
-      "https://images.unsplash.com/photo-1535632066927-ab7c9ab60908?w=900",
-      "https://images.unsplash.com/photo-1611591437281-460bfbe1220a?w=900",
+      earring1,
+      earring2,
+      earring3
     ],
   },
   {
     title: "Bangles",
     images: [
-      "https://images.unsplash.com/photo-1617038260897-41a1f14a8ca0?w=900",
-      "https://images.unsplash.com/photo-1619119069152-a2b331eb392a?w=900",
+      bangle1,
+      bangle2,
+      bangle3
     ],
   },
   {
     title: "Mangalsutra",
     images: [
-      "https://images.unsplash.com/photo-1584302179602-e4c3d3fd629d?w=900",
-      "https://images.unsplash.com/photo-1611085583191-a3b181a88401?w=900",
+      mangal1,
+      mangal2,
+      mangal3
     ],
   },
 ];
@@ -181,68 +212,44 @@ const banner =
 
   return (
     <div className="w-full bg-[#f8f8f8] max-md:pb-[75px]">
-     <section className="relative h-[570px] w-full overflow-hidden bg-black max-md:h-[260px]">
-        <div className="relative h-[570px] w-full overflow-hidden max-md:h-[260px]">
-          {/* VIDEO */}
-          {banner.mediaType === "VIDEO" ? (
-            <video
-              autoPlay
-              muted
-              loop
-              playsInline
-              className="absolute inset-0 h-full w-full object-cover"
-            >
-              <source src={banner.mediaUrl} type="video/mp4" />
-            </video>
-          ) : (
-            <img
-              src={banner.mediaUrl}
-              alt={banner.title}
-              className="absolute inset-0 h-full w-full object-cover"
-            />
-          )}
 
-          {/* DARK OVERLAY */}
-          <div className="absolute inset-0 bg-black/45" />
+<section className="relative h-[600px] w-full overflow-hidden bg-black max-md:h-[300px]">
+  <div className="relative h-full w-full overflow-hidden">
+    {banner.mediaType === "VIDEO" ? (
+      <video
+        autoPlay
+        muted
+        loop
+        playsInline
+        className="absolute inset-0 h-full w-full object-contain"
+      >
+        <source src={banner.mediaUrl} type="video/mp4" />
+      </video>
+    ) : (
+      <img
+        src={banner.mediaUrl}
+        alt={banner.title}
+        className="absolute inset-0 h-full w-full object-contain"
+      />
+    )}
 
-          {/* CONTENT
-          <div className="relative z-20 mx-auto flex h-full max-w-[1450px] items-center px-16">
-            <div className="max-w-[700px]">
-              <p className="text-[20px] font-medium tracking-wide text-white/90">
-                Hambire Jewellery Exclusive
-              </p>
+    <div className="absolute inset-0 bg-black/20" />
 
-              <h1 className="mt-4 text-[78px] font-extrabold leading-[1.05] text-white">
-                {banner.title}
-              </h1>
-
-              <p className="mt-5 text-[32px] font-light text-white/90">
-                {banner.subTitle}
-              </p>
-
-              <button className="mt-10 rounded-full bg-white px-12 py-5 text-[18px] font-bold text-black transition-all duration-300 hover:scale-105">
-                SHOP NOW
-              </button>
-            </div>
-          </div> */}
-
-          {/* DOTS */}
-          <div className="absolute bottom-8 left-1/2 z-30 flex -translate-x-1/2 gap-3">
-            {banners.map((_, index) => (
-              <button
-                key={index}
-                onClick={() => setActive(index)}
-                className={`h-3 rounded-full transition-all duration-300 ${
-                  active === index
-                    ? "w-10 bg-white"
-                    : "w-3 bg-white/50 hover:bg-white"
-                }`}
-              />
-            ))}
-          </div>
-        </div>
-      </section>
-
+    <div className="absolute bottom-8 left-1/2 z-30 flex -translate-x-1/2 gap-3">
+      {banners.map((_, index) => (
+        <button
+          key={index}
+          onClick={() => setActive(index)}
+          className={`h-3 rounded-full transition-all duration-300 ${
+            active === index
+              ? "w-10 bg-white"
+              : "w-3 bg-white/50 hover:bg-white"
+          }`}
+        />
+      ))}
+    </div>
+  </div>
+</section>
       <section className="bg-[#fcfcfc] px-6">
         <div className="mx-auto max-w-[1450px] px-10 py-10">
           {" "}
@@ -271,9 +278,9 @@ const banner =
               <div className="group overflow-hidden rounded-xl cursor-pointer">
                 {" "}
                 <img
-                  src="https://images.unsplash.com/photo-1602173574767-37ac01994b2a?w=900"
+                  src={diamond}
                   alt="Diamond Jewellery"
-                  className="h-[640px] w-full max-md:h-[260px] cursor-pointer object-cover transition-transform duration-700 group-hover:scale-110"
+                  className="h-[540px] w-full max-md:h-[260px] cursor-pointer object-cover transition-transform duration-700 group-hover:scale-110"
                 />
               </div>
 
@@ -287,9 +294,9 @@ const banner =
                 <div className="group overflow-hidden rounded-xl cursor-pointer">
                   {" "}
                   <img
-                    src="https://images.unsplash.com/photo-1617038260897-41a1f14a8ca0?w=900"
+                    src={gold}
                     alt="Gold Jewellery"
-                    className="h-[290px] w-full cursor-pointer object-cover transition-transform duration-700 group-hover:scale-110"
+                    className="h-[230px] w-full cursor-pointer object-cover transition-transform duration-700 group-hover:scale-110"
                   />
                 </div>
 
@@ -302,9 +309,9 @@ const banner =
                 <div className="group overflow-hidden rounded-xl cursor-pointer">
                   {" "}
                   <img
-                    src="https://images.unsplash.com/photo-1515562141207-7a88fb7ce338?w=900"
+                    src={gemstone}
                     alt="Gemstone Jewellery"
-                    className="h-[290px] w-full object-cover transition-transform duration-700 group-hover:scale-110"
+                    className="h-[230px] w-full object-cover transition-transform duration-700 group-hover:scale-110"
                   />
                 </div>
 
@@ -318,14 +325,14 @@ const banner =
               <div className="group overflow-hidden rounded-xl cursor-pointer">
                 {" "}
                 <img
-                  src="https://images.unsplash.com/photo-1611591437281-460bfbe1220a?w=900"
+                src = {platinum}
                   alt="Platinum Jewellery"
-                  className="h-[640px] w-full max-md:h-[260px] cursor-pointer object-cover transition-transform duration-700 group-hover:scale-110"
+                  className="h-[540px] w-full max-md:h-[260px] cursor-pointer object-cover transition-transform duration-700 group-hover:scale-110"
                 />
               </div>
 
               <h3 className="mt-3 text-center font-serif text-[22px] text-black">
-                Platinum Jewellery
+                Silver Jewellery
               </h3>
             </div>
           </div>
@@ -338,67 +345,7 @@ const banner =
         </div>
       </section>
 
-      <section className="bg-[#fcfcfc] px-6 ">
-        <div className="relative z-20">
-          <div className="mx-auto max-w-[1450px] px-10 py-6">
-            {" "}
-            <div className="mb-3 pt-0 text-center">
-              <div className="flex items-center justify-center gap-3">
-                <div className="h-[1.5px] w-[100px] bg-[#ef9541]" />
-
-                <img
-                  src={hjIcone}
-                  alt="HJ Logo"
-                  className="h-[50px] w-auto object-contain "
-                />
-
-                <div className="h-[1.5px] w-[100px] bg-[#ef9541]" />
-              </div>
-
-              <h2 className="mt-2 text-[38px] font-serif tracking-wide text-[#0f172a]">
-                COLLECTIONS
-              </h2>
-
-              <p className="mt-3 text-[18px] text-gray-700">
-                Find your style. Explore our diverse collections!
-              </p>
-            </div>
-            <div className="mx-auto mt-4 grid max-w-[1320px] grid-cols-3 gap-10 max-md:grid-cols-1 max-md:gap-5">
-              {collections.map((item, index) => (
-                <div
-                  key={item.title}
-                 className={`group relative overflow-hidden rounded-[24px] bg-white shadow-xl cursor-pointer max-md:translate-y-0 ${
-  index === 1 ? "-translate-y-10" : "translate-y-4"
-}`}
-                >
-                  <img
-                    src={item.image}
-                    alt={item.title}
-                    className="h-[360px] w-full cursor-pointer object-cover transition-transform duration-700 group-hover:scale-110"
-                  />
-
-                  <div className="absolute inset-0 bg-black/10" />
-
-                  <div className="absolute bottom-8 right-8 text-right">
-                    <h2 className="text-[36px] font-light tracking-[8px] text-white">
-                      {item.title}
-                    </h2>
-                    <p className="text-[13px] tracking-[3px] text-white">
-                      COLLECTIONS
-                    </p>
-                  </div>
-                </div>
-              ))}
-            </div>
-            <div className="mt-8 flex justify-center">
-              <button className="rounded-md border border-[#d7264b] px-10 py-4 text-[17px] font-medium text-[#d7264b] hover:bg-[#d7264b] hover:text-white">
-                View All Collection
-              </button>
-            </div>
-          </div>
-        </div>
-      </section>
-      <div className="mx-auto max-w-[1450px] px-10 py-10">
+         <div className="mx-auto max-w-[1450px] px-10 py-10">
         {" "}
         <div className="mb-6 text-center">
           {" "}
@@ -430,7 +377,7 @@ const banner =
                 title={category.title}
                 images={category.images}
                 delay={delays[index]}
-              />
+              /> 
             );
           })}
         </div>
@@ -459,18 +406,14 @@ const banner =
           <h2 className="mt-2 text-[34px] font-serif tracking-wide text-[#0f172a]">
             SHOP BY GENDER
           </h2>
-
-          <p className="mt-2 text-[17px] text-gray-700">
-            Find Jewelry for Women, Men, and Kids
-          </p>
         </div>
 
 <div className="mx-auto grid max-w-[1500px] grid-cols-3 gap-6 items-end max-md:grid-cols-1 max-md:gap-8">          {/* WOMEN */}
 <div className="group cursor-pointer translate-y-6 max-md:translate-y-0">            <div className="overflow-hidden rounded-[24px]">
               <img
-                src="https://images.unsplash.com/photo-1617038220319-276d3cfab638?w=900"
+                src={women}
                 alt="Women's Jewellery"
-                className="h-[450px] w-full max-md:h-[330px] object-cover transition-transform duration-700 group-hover:scale-110"
+                className="h-[480px] w-full max-md:h-[330px] object-cover transition-transform duration-700 group-hover:scale-110"
               />
             </div>
 
@@ -482,9 +425,9 @@ const banner =
           <div className="group cursor-pointer -translate-y-6 max-md:translate-y-0">
             <div className="overflow-hidden rounded-[24px]">
               <img
-                src="https://images.unsplash.com/photo-1517841905240-472988babdf9?w=900"
+                src={men}
                 alt="Men's Jewellery"
-                className="h-[450px] w-full max-md:h-[330px] object-cover transition-transform duration-700 group-hover:scale-110"
+                className="h-[480px] w-full max-md:h-[330px] object-cover transition-transform duration-700 group-hover:scale-110"
               />
             </div>
 
@@ -496,9 +439,9 @@ const banner =
           <div className="group cursor-pointer translate-y-6 max-md:translate-y-0">
             <div className="overflow-hidden rounded-[24px]">
               <img
-                src="https://images.unsplash.com/photo-1519345182560-3f2917c472ef?w=900"
+                src={kid}
                 alt="Kid's Jewellery"
-                className="h-[450px] w-full max-md:h-[330px] object-cover transition-transform duration-700 group-hover:scale-110"
+                className="h-[480px] w-full max-md:h-[330px] object-cover transition-transform duration-700 group-hover:scale-110"
               />
             </div>
 
@@ -708,12 +651,12 @@ const banner =
          <div className="grid grid-cols-3 gap-6 max-md:grid-cols-1">
             <div className="flex flex-col gap-6">
               <img
-                src="https://images.unsplash.com/photo-1601121141461-9d6647bca1ed?w=900"
+                src={jewelleryset2}
                 className="h-[280px] w-full rounded-xl object-cover"
               />
 
               <img
-                src="https://images.unsplash.com/photo-1602173574767-37ac01994b2a?w=900"
+                src={earring1}
                 className="h-[280px] w-full rounded-xl object-cover"
               />
             </div>
@@ -734,12 +677,12 @@ const banner =
 
             <div className="flex flex-col gap-6">
               <img
-                src="https://images.unsplash.com/photo-1617038260897-41a1f14a8ca0?w=900"
+              src={bangle1}
                 className="h-[280px] w-full rounded-xl object-cover"
               />
 
               <img
-                src="https://images.unsplash.com/photo-1515562141207-7a88fb7ce338?w=900"
+              src={ring2}
                 className="h-[280px] w-full rounded-xl object-cover"
               />
             </div>
@@ -751,12 +694,12 @@ const banner =
           {/* LEFT IMAGES */}
           <div className="relative flex items-center max-md:block max-md:overflow-hidden">
             <img
-              src="https://images.unsplash.com/photo-1617038260897-41a1f14a8ca0?w=900"
+            src={jewelleryset2}
               alt=""
 className="h-[450px] w-[380px] rounded-[26px] object-cover shadow-lg max-md:h-[300px] max-md:w-full"            />
 
             <img
-              src="https://images.unsplash.com/photo-1602173574767-37ac01994b2a?w=900"
+            src={pendent2}
               alt=""
 className="absolute left-[320px] top-8 h-[400px] w-[340px] rounded-[26px] object-cover shadow-2xl max-md:hidden"            />
           </div>
