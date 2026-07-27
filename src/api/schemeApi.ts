@@ -159,18 +159,14 @@ export const verifyCustomerAadhaar = async (
   file: File
 ) => {
   const formData = new FormData();
-  formData.append("aadhaarNumber", aadhaarNumber);
-  formData.append("file", file);
 
-  const res = await schemeApi.post(
+  formData.append("file", file);
+  formData.append("aadhaarNumber", aadhaarNumber);
+
+  const response = await schemeApi.post(
     `/scheme/auth/profile/${customerId}/verify-aadhaar`,
-    formData,
-    {
-      headers: {
-        "Content-Type": "multipart/form-data",
-      },
-    }
+    formData
   );
 
-  return res.data;
+  return response.data;
 };
