@@ -18,7 +18,10 @@ import {
   loginSchemeCustomer,
   checkSchemeMobile,
   verifyAadhaarOcr,
-  verifyCustomerAadhaar,
+   verifyCustomerAadhaar,
+  updateSchemeCustomerProfile,
+  verifySchemeProfileMobile,
+
 } from "../api/schemeApi";
 
 const SchemeProfile = () => {
@@ -28,7 +31,41 @@ const SchemeProfile = () => {
     "login"
   );
 
+
+
   const [profile, setProfile] = useState<any>(null);
+  
+  
+  const [editingProfile, setEditingProfile] =
+  useState(false);
+
+const [savingProfile, setSavingProfile] =
+  useState(false);
+
+const [editName, setEditName] =
+  useState("");
+
+const [editVillage, setEditVillage] =
+  useState("");
+
+const [editPhone, setEditPhone] =
+  useState("");
+
+const [editEmail, setEditEmail] =
+  useState("");
+
+const [editFullAddress, setEditFullAddress] =
+  useState("");
+
+const [editPincode, setEditPincode] =
+  useState("");
+
+const [editAadhaarNumber, setEditAadhaarNumber] =
+  useState("");
+
+const [editPanNumber, setEditPanNumber] =
+  useState("");
+  
   const [loading, setLoading] = useState(false);
 
   const [mobile, setMobile] = useState("");
@@ -48,6 +85,101 @@ const SchemeProfile = () => {
   const [profileAadhaarFile, setProfileAadhaarFile] = useState<File | null>(
     null
   );
+
+  const [profileOtp, setProfileOtp] =
+  useState("");
+
+const [profileSendingOtp, setProfileSendingOtp] =
+  useState(false);
+
+const [profileVerifyingOtp, setProfileVerifyingOtp] =
+  useState(false);
+
+const [
+  profileConfirmationResult,
+  setProfileConfirmationResult
+] = useState<any>(null);
+
+const [
+  profileRecaptchaVerified,
+  setProfileRecaptchaVerified
+] = useState(false);
+
+const profileRecaptchaRef =
+  useRef<RecaptchaVerifier | null>(null);
+
+
+  useEffect(() => {
+
+  if (
+    step !== "profile" ||
+    profile?.mobileVerified
+  ) {
+    return;
+  }
+
+  const timer = window.setTimeout(() => {
+
+    const container =
+      document.getElementById(
+        "profile-mobile-recaptcha"
+      );
+
+    if (
+      !container ||
+      profileRecaptchaRef.current
+    ) {
+      return;
+    }
+
+    profileRecaptchaRef.current =
+      new RecaptchaVerifier(
+        auth,
+        "profile-mobile-recaptcha",
+        {
+          size: "normal",
+
+          callback: () => {
+            setProfileRecaptchaVerified(
+              true
+            );
+          },
+
+          "expired-callback": () => {
+            setProfileRecaptchaVerified(
+              false
+            );
+          },
+        }
+      );
+
+    profileRecaptchaRef.current.render();
+
+  }, 300);
+
+ return () => {
+  window.clearTimeout(timer);
+
+  if (profileRecaptchaRef.current) {
+    try {
+      profileRecaptchaRef.current.clear();
+    } catch (error) {
+      console.warn(
+        "Profile reCAPTCHA cleanup error:",
+        error
+      );
+    }
+
+    profileRecaptchaRef.current = null;
+  }
+
+  setProfileRecaptchaVerified(false);
+};
+
+}, [
+  step,
+  profile?.mobileVerified,
+]);
 
   const [registerData, setRegisterData] = useState({
     name: "",
@@ -278,40 +410,501 @@ const SchemeProfile = () => {
       setSendingOtp(false);
     }
   };
+const handleOtpVerify = async () => {
+  if (otp.length !== 6) {
+    return alert("Enter valid 6 digit OTP");
+  }
 
-  const handleOtpVerify = async () => {
-    if (otp.length !== 6) {
-      return alert("Enter valid 6 digit OTP");
+  if (!confirmationResult) {
+    return alert("Please send OTP first");
+  }
+
+  try {
+
+    /*
+     * 1. Firebase verifies OTP.
+     */
+    const credential =
+      await confirmationResult.confirm(otp);
+
+    /*
+     * 2. Generate Firebase ID token.
+     */
+    const firebaseIdToken =
+      await credential.user.getIdToken(true);
+
+    if (!firebaseIdToken) {
+      throw new Error(
+        "Firebase verification token was not received"
+      );
     }
 
-    if (!confirmationResult) {
-      return alert("Please send OTP first");
+    /*
+     * 3. Send profile data + Firebase token
+     * to Spring Boot.
+     */
+    const customer =
+      await registerSchemeCustomer({
+        ...registerData,
+        firebaseIdToken,
+      });
+
+      /*
+ * Aadhaar is optional during Customer Profile registration.
+ *
+ * But if customer already supplied Aadhaar + document,
+ * complete Aadhaar verification now so they do not
+ * need to upload it again after registration.
+ */
+if (
+  registerData.aadhaarNumber &&
+  aadhaarFile
+) {
+  const aadhaarResult =
+    await verifyCustomerAadhaar(
+      customer.customerId,
+      registerData.aadhaarNumber,
+      aadhaarFile
+    );
+
+  if (!aadhaarResult.verified) {
+    throw new Error(
+      aadhaarResult.message ||
+      "Aadhaar verification failed"
+    );
+  }
+}
+
+    /*
+     * At this point backend has:
+     *
+     * - verified Firebase token
+     * - extracted verified phone
+     * - compared it with entered phone
+     * - created customer
+     * - set mobileVerified=true
+     */
+
+    localStorage.setItem(
+      "schemeCustomer",
+      JSON.stringify(customer)
+    );
+
+    localStorage.setItem(
+      "schemeLoginTime",
+      Date.now().toString()
+    );
+
+   alert(
+  registerData.aadhaarNumber && aadhaarFile
+    ? "Registration, mobile and Aadhaar verification successful"
+    : "Registration and mobile verification successful"
+);
+
+    setOtp("");
+    setConfirmationResult(null);
+
+    /*
+     * 4. Reload customer profile.
+     */
+    await fetchProfile(
+      customer.customerId
+    );
+
+  } catch (error: any) {
+
+    console.error(
+      "Profile registration error:",
+      error
+    );
+
+    if (error.code?.startsWith("auth/")) {
+      alert(
+        error.message ||
+        "Invalid or expired OTP"
+      );
+      return;
+    }
+
+    alert(
+      error.response?.data?.message ||
+      error.response?.data?.error ||
+      error.response?.data ||
+      error.message ||
+      "Registration failed"
+    );
+  }
+};
+
+
+
+const handleSendProfileMobileOtp =
+  async () => {
+
+    if (profileSendingOtp) {
+      return;
+    }
+
+    const phoneNumber =
+      String(profile?.phoneNumber || "")
+        .replace(/\D/g, "");
+
+    if (!/^\d{10}$/.test(phoneNumber)) {
+      return alert(
+        "Current mobile number is invalid"
+      );
+    }
+
+    if (!profileRecaptchaVerified) {
+      return alert(
+        "Please complete reCAPTCHA first"
+      );
+    }
+
+    if (!profileRecaptchaRef.current) {
+      return alert(
+        "reCAPTCHA is not ready. Please refresh and try again."
+      );
     }
 
     try {
-      await confirmationResult.confirm(otp);
 
-      const customer = await registerSchemeCustomer(registerData);
+      setProfileSendingOtp(true);
 
-      localStorage.setItem("schemeCustomer", JSON.stringify(customer));
-      localStorage.setItem("schemeLoginTime", Date.now().toString());
+      const result =
+        await signInWithPhoneNumber(
+          auth,
+          `+91${phoneNumber}`,
+          profileRecaptchaRef.current
+        );
 
-      alert("Registration successful");
-
-      setOtp("");
-      setConfirmationResult(null);
-
-      await fetchProfile(customer.customerId);
-    } catch (error: any) {
-      console.error(error);
-      alert(
-        error.response?.data?.message ||
-          error.response?.data?.error ||
-          error.message ||
-          "Registration failed"
+      setProfileConfirmationResult(
+        result
       );
+
+      alert(
+        "OTP sent successfully"
+      );
+
+    } catch (error: any) {
+
+      console.error(
+        "Profile OTP send error:",
+        error
+      );
+
+      alert(
+        error?.message ||
+        "Failed to send OTP"
+      );
+
+    } finally {
+      setProfileSendingOtp(false);
     }
   };
+
+  const handleVerifyProfileMobileOtp =
+  async () => {
+
+    if (!customerId) {
+      return alert(
+        "Please login again"
+      );
+    }
+
+    if (!profileConfirmationResult) {
+      return alert(
+        "Please send OTP first"
+      );
+    }
+
+    if (!/^\d{6}$/.test(profileOtp)) {
+      return alert(
+        "Enter valid 6 digit OTP"
+      );
+    }
+
+    try {
+
+      setProfileVerifyingOtp(true);
+
+      /*
+       * Firebase verifies entered OTP.
+       */
+      const credential =
+        await profileConfirmationResult
+          .confirm(profileOtp);
+
+      /*
+       * Get secure Firebase ID token.
+       */
+      const firebaseIdToken =
+        await credential.user
+          .getIdToken(true);
+
+      if (!firebaseIdToken) {
+        throw new Error(
+          "Firebase verification token was not received"
+        );
+      }
+
+      /*
+       * Backend verifies token and phone.
+       */
+      await verifySchemeProfileMobile(
+        customerId,
+        firebaseIdToken
+      );
+
+      alert(
+        "Mobile number verified successfully"
+      );
+
+      setProfileOtp("");
+      setProfileConfirmationResult(null);
+
+      /*
+       * Reload profile:
+       * mobileVerified should now be true.
+       */
+      await fetchProfile(customerId);
+
+    } catch (error: any) {
+
+      console.error(
+        "Profile mobile verification error:",
+        error
+      );
+
+      alert(
+        error.response?.data?.message ||
+        error.response?.data?.error ||
+        error.message ||
+        "OTP verification failed"
+      );
+
+    } finally {
+      setProfileVerifyingOtp(false);
+    }
+  };
+
+const handleOpenProfileEdit = () => {
+
+  setEditName(
+    profile?.name || ""
+  );
+
+  setEditVillage(
+    profile?.village || ""
+  );
+
+  setEditPhone(
+    profile?.phoneNumber || ""
+  );
+
+  setEditEmail(
+    profile?.emailId || ""
+  );
+
+  setEditFullAddress(
+    profile?.fullAddress || ""
+  );
+
+  setEditPincode(
+    profile?.pincode || ""
+  );
+
+  setEditAadhaarNumber(
+    profile?.aadhaarNumber || ""
+  );
+
+  setEditPanNumber(
+    profile?.panNumber || ""
+  );
+
+  setEditingProfile(true);
+};
+
+
+const savedPhone =
+  String(profile?.phoneNumber || "")
+    .replace(/\D/g, "");
+
+const changedPhone =
+  editPhone.replace(/\D/g, "");
+
+const phoneHasChanged =
+  savedPhone !== changedPhone;
+
+
+  const handleSaveProfile = async () => {
+
+  if (!customerId) {
+    return alert(
+      "Please login again"
+    );
+  }
+
+  if (!editName.trim()) {
+    return alert(
+      "Customer name is required"
+    );
+  }
+
+  if (!editVillage.trim()) {
+    return alert(
+      "Village is required"
+    );
+  }
+
+  const phoneNumber =
+    editPhone.replace(/\D/g, "");
+
+  if (!/^\d{10}$/.test(phoneNumber)) {
+    return alert(
+      "Enter valid 10 digit mobile number"
+    );
+  }
+
+  if (
+    editEmail.trim() &&
+    !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(
+      editEmail.trim()
+    )
+  ) {
+    return alert(
+      "Enter valid email address"
+    );
+  }
+
+  if (
+    editPincode &&
+    !/^\d{6}$/.test(editPincode)
+  ) {
+    return alert(
+      "Pincode must contain 6 digits"
+    );
+  }
+
+  if (
+    !profile?.aadhaarVerified &&
+    editAadhaarNumber &&
+    !/^\d{12}$/.test(editAadhaarNumber)
+  ) {
+    return alert(
+      "Aadhaar number must contain 12 digits"
+    );
+  }
+
+  /*
+   * Ask before removing existing
+   * mobile verification.
+   */
+  if (
+    phoneHasChanged &&
+    profile?.mobileVerified
+  ) {
+
+    const confirmed =
+      window.confirm(
+        "This mobile number is already verified. If you change the mobile number, the current mobile verification will be removed and the new number must be verified again. Do you want to continue?"
+      );
+
+    if (!confirmed) {
+      return;
+    }
+  }
+
+  try {
+
+    setSavingProfile(true);
+
+    const payload: any = {
+      name: editName.trim(),
+      village: editVillage.trim(),
+      phoneNumber,
+
+      emailId:
+        editEmail.trim() || null,
+
+      fullAddress:
+        editFullAddress.trim() || null,
+
+      pincode:
+        editPincode.trim() || null,
+
+      panNumber:
+        editPanNumber.trim() || null,
+    };
+
+    /*
+     * Never send Aadhaar change when
+     * Aadhaar is already verified.
+     */
+    if (!profile?.aadhaarVerified) {
+      payload.aadhaarNumber =
+        editAadhaarNumber
+          .replace(/\D/g, "") ||
+        null;
+    }
+
+    await updateSchemeCustomerProfile(
+      customerId,
+      payload
+    );
+
+    /*
+     * If mobile changed, also update the
+     * locally stored customer phone.
+     */
+    const savedCustomer =
+      JSON.parse(
+        localStorage.getItem(
+          "schemeCustomer"
+        ) || "{}"
+      );
+
+    localStorage.setItem(
+      "schemeCustomer",
+      JSON.stringify({
+        ...savedCustomer,
+        phoneNumber,
+        mobileVerified:
+          phoneHasChanged
+            ? false
+            : savedCustomer.mobileVerified,
+      })
+    );
+
+    /*
+     * Reload from backend.
+     */
+    await fetchProfile(customerId);
+
+    setEditingProfile(false);
+
+    alert(
+      phoneHasChanged
+        ? "Profile updated. Mobile verification was reset because the mobile number changed. Please verify the new mobile number."
+        : "Profile updated successfully."
+    );
+
+  } catch (error: any) {
+
+    console.error(error);
+
+    alert(
+      error.response?.data?.message ||
+      error.response?.data?.error ||
+      error.response?.data ||
+      "Profile update failed"
+    );
+
+  } finally {
+    setSavingProfile(false);
+  }
+};
+
 
   const handleProfileAadhaarVerify = async () => {
     if (!customerId) return alert("Please login again");
@@ -638,57 +1231,342 @@ const SchemeProfile = () => {
               </h1>
             </div>
 
-            <button
-              onClick={logoutCustomer}
-className={`${clickable} rounded-full border border-gray-300 px-7 py-3 font-bold text-gray-700 max-md:w-full`}            >
-              Logout
-            </button>
+         <div className="flex gap-3">
+  <button
+    onClick={handleOpenProfileEdit}
+    className={`${clickable} rounded-full border border-[#b98213] px-7 py-3 font-bold text-[#b98213]`}
+  >
+    Edit Profile
+  </button>
+
+  <button
+    onClick={logoutCustomer}
+    className={`${clickable} rounded-full border border-gray-300 px-7 py-3 font-bold text-gray-700`}
+  >
+    Logout
+  </button>
+</div>
           </div>
 
-          {!profile?.aadhaarVerified && (
-<div className="mt-8 flex gap-4 rounded-[24px] border border-yellow-300 bg-yellow-50 p-6 text-yellow-800 max-md:flex-col max-md:p-4">              <ShieldAlert className="h-8 w-8" />
-              <div>
-                <h3 className="text-[20px] font-bold">
-                  Scheme Access Verification Required
-                </h3>
-                <p className="mt-1 text-[16px]">
-                  To activate Hambire Jewellery schemes, please verify your
-                  profile by uploading Aadhaar document. Aadhaar number and
-                  your name must match the document.
-                </p>
-              </div>
-            </div>
-          )}
+          {editingProfile && (
+  <div className="mt-8 rounded-[28px] border border-[#b98213]/30 bg-[#fffaf0] p-7">
+    <h2 className="text-[28px] font-bold">
+      Edit Profile
+    </h2>
 
-          {profile?.aadhaarVerified && (
-            <div className="mt-8 rounded-[24px] border border-green-300 bg-green-50 p-6 text-green-700">
-              <h3 className="text-[20px] font-bold">
-                Aadhaar Verified Successfully
-              </h3>
-              <p className="mt-1 text-[16px]">
-                You can now activate Hambire Jewellery schemes.
-              </p>
-            </div>
-          )}
+    <div className="mt-6 grid grid-cols-2 gap-5 max-md:grid-cols-1">
+
+      <div>
+        <label className="mb-2 block font-semibold">
+          Customer Name
+        </label>
+
+        <input
+          value={editName}
+          disabled={profile?.aadhaarVerified}
+          onChange={(e) =>
+            setEditName(e.target.value)
+          }
+          className={`w-full rounded-xl border px-4 py-3 ${
+            profile?.aadhaarVerified
+              ? "cursor-not-allowed bg-gray-200 text-gray-500"
+              : "bg-white"
+          }`}
+        />
+
+ {profile?.aadhaarVerified && (
+    <p className="mt-1 text-sm text-gray-500">
+      Name is locked because Aadhaar has been verified.
+    </p>
+  )}
+      
+      </div>
+
+   
+
+      <div>
+        <label className="mb-2 block font-semibold">
+          Mobile Number
+        </label>
+
+        <input
+          value={editPhone}
+          maxLength={10}
+          onChange={(e) =>
+            setEditPhone(
+              e.target.value.replace(/\D/g, "")
+            )
+          }
+          className="w-full rounded-xl border bg-white px-4 py-3"
+        />
+
+        {phoneHasChanged && (
+          <p className="mt-2 text-sm font-semibold text-orange-600">
+            Changing the mobile number will remove the existing OTP verification.
+            The new mobile number must be verified again.
+          </p>
+        )}
+      </div>
+
+      <div>
+        <label className="mb-2 block font-semibold">
+          Village / City
+        </label>
+
+        <input
+          value={editVillage}
+          onChange={(e) =>
+            setEditVillage(e.target.value)
+          }
+          className="w-full rounded-xl border bg-white px-4 py-3"
+        />
+      </div>
+
+      <div>
+        <label className="mb-2 block font-semibold">
+          Email
+        </label>
+
+        <input
+          value={editEmail}
+          onChange={(e) =>
+            setEditEmail(e.target.value)
+          }
+          className="w-full rounded-xl border bg-white px-4 py-3"
+        />
+      </div>
+
+      <div>
+        <label className="mb-2 block font-semibold">
+          Full Address
+        </label>
+
+        <input
+          value={editFullAddress}
+          onChange={(e) =>
+            setEditFullAddress(e.target.value)
+          }
+          className="w-full rounded-xl border bg-white px-4 py-3"
+        />
+      </div>
+
+      <div>
+        <label className="mb-2 block font-semibold">
+          Pincode
+        </label>
+
+        <input
+          value={editPincode}
+          maxLength={6}
+          onChange={(e) =>
+            setEditPincode(
+              e.target.value.replace(/\D/g, "")
+            )
+          }
+          className="w-full rounded-xl border bg-white px-4 py-3"
+        />
+      </div>
+
+      <div>
+        <label className="mb-2 block font-semibold">
+          Aadhaar Number
+        </label>
+
+        <input
+          value={
+            profile?.aadhaarVerified
+              ? "XXXX XXXX XXXX"
+              : editAadhaarNumber
+          }
+          disabled={profile?.aadhaarVerified}
+          maxLength={12}
+          onChange={(e) =>
+            setEditAadhaarNumber(
+              e.target.value
+                .replace(/\D/g, "")
+                .slice(0, 12)
+            )
+          }
+          className={`w-full rounded-xl border px-4 py-3 ${
+            profile?.aadhaarVerified
+              ? "cursor-not-allowed bg-gray-200 text-gray-500"
+              : "bg-white"
+          }`}
+        />
+
+        <p className="mt-1 text-sm text-gray-500">
+          {profile?.aadhaarVerified
+            ? "Aadhaar is verified and cannot be changed."
+            : "Aadhaar can be changed until verification."}
+        </p>
+      </div>
+
+      <div>
+        <label className="mb-2 block font-semibold">
+          PAN Number
+        </label>
+
+        <input
+          value={editPanNumber}
+          onChange={(e) =>
+            setEditPanNumber(
+              e.target.value.toUpperCase()
+            )
+          }
+          className="w-full rounded-xl border bg-white px-4 py-3"
+        />
+      </div>
+    </div>
+
+    <div className="mt-7 flex gap-3">
+      <button
+        disabled={savingProfile}
+        onClick={handleSaveProfile}
+        className="rounded-full bg-black px-7 py-3 font-bold text-white"
+      >
+        {savingProfile
+          ? "Saving..."
+          : "Save Changes"}
+      </button>
+
+      <button
+        disabled={savingProfile}
+        onClick={() => setEditingProfile(false)}
+        className="rounded-full border border-gray-300 px-7 py-3 font-bold"
+      >
+        Cancel
+      </button>
+    </div>
+  </div>
+)}
+
+{!(
+  profile?.mobileVerified &&
+  profile?.aadhaarVerified
+) && (
+  <div className="mt-8 flex gap-4 rounded-[24px] border border-yellow-300 bg-yellow-50 p-6 text-yellow-800 max-md:flex-col max-md:p-4">
+    <ShieldAlert className="h-8 w-8" />
+
+    <div>
+      <h3 className="text-[20px] font-bold">
+        Scheme Access Verification Required
+      </h3>
+
+      <p className="mt-1 text-[16px]">
+        Mobile OTP verification and Aadhaar verification
+        must both be completed before activating
+        Hambire Jewellery schemes.
+      </p>
+    </div>
+  </div>
+)}
+
+{profile?.mobileVerified &&
+ profile?.aadhaarVerified && (
+  <div className="mt-8 rounded-[24px] border border-green-300 bg-green-50 p-6 text-green-700">
+
+    <h3 className="text-[20px] font-bold">
+      Profile Verified Successfully
+    </h3>
+
+    <p className="mt-1 text-[16px]">
+      Mobile number and Aadhaar are verified.
+      You can now activate Hambire Jewellery schemes.
+    </p>
+  </div>
+)}
+
+
+{!profile?.mobileVerified && (
+  <div className="mt-10 rounded-[28px] bg-[#111] p-8 text-white max-md:p-5">
+
+    <h3 className="font-serif text-[30px] text-[#f5c542] max-md:text-[24px]">
+      Verify Mobile Number
+    </h3>
+
+    <p className="mt-2 text-white/70">
+      Your current mobile number{" "}
+      <strong>{profile?.phoneNumber}</strong>{" "}
+      must be verified using OTP.
+    </p>
+
+    <div
+      id="profile-mobile-recaptcha"
+      className="mt-6 flex justify-center"
+    />
+
+    {!profileConfirmationResult ? (
+      <button
+        disabled={profileSendingOtp}
+        onClick={handleSendProfileMobileOtp}
+        className={`${clickable} mt-6 w-full rounded-full bg-[#f5c542] px-6 py-4 font-bold text-black`}
+      >
+        {profileSendingOtp
+          ? "Sending OTP..."
+          : "Send OTP"}
+      </button>
+    ) : (
+      <>
+        <input
+          value={profileOtp}
+          maxLength={6}
+          onChange={(e) =>
+            setProfileOtp(
+              e.target.value
+                .replace(/\D/g, "")
+                .slice(0, 6)
+            )
+          }
+          placeholder="Enter 6 digit OTP"
+          className="mt-6 w-full rounded-xl bg-white px-4 py-4 text-[22px] tracking-[6px] text-black"
+        />
+
+        <button
+          disabled={profileVerifyingOtp}
+          onClick={handleVerifyProfileMobileOtp}
+          className={`${clickable} mt-4 w-full rounded-full bg-[#f5c542] px-6 py-4 font-bold text-black`}
+        >
+          {profileVerifyingOtp
+            ? "Verifying..."
+            : "Verify Mobile Number"}
+        </button>
+      </>
+    )}
+  </div>
+)}
+        
 
           <div className="mt-10 grid grid-cols-2 gap-7 max-md:grid-cols-1 max-md:gap-4">
-            {[
-              ["Name", profile?.name, <User />],
-              ["Mobile", profile?.phoneNumber, <Phone />],
-              ["Email", profile?.emailId || "-", <Mail />],
-              ["Village", profile?.village || "-", <MapPin />],
-              ["Address", profile?.fullAddress || "-", <MapPin />],
-              ["Pincode", profile?.pincode || "-", <MapPin />],
-              [
-                "Aadhaar Number",
-                profile?.aadhaarNumber || "Not Added",
-                <User />,
-              ],
-              [
-                "Aadhaar Status",
-                profile?.aadhaarVerified ? "Verified" : "Not Verified",
-                <ShieldAlert />,
-              ],
+           {[
+  ["Name", profile?.name, <User />],
+  ["Mobile", profile?.phoneNumber, <Phone />],
+
+  [
+    "Mobile Status",
+    profile?.mobileVerified
+      ? "Verified"
+      : "Not Verified",
+    <Phone />,
+  ],
+
+  ["Email", profile?.emailId || "-", <Mail />],
+  ["Village", profile?.village || "-", <MapPin />],
+  ["Address", profile?.fullAddress || "-", <MapPin />],
+  ["Pincode", profile?.pincode || "-", <MapPin />],
+
+  [
+    "Aadhaar Number",
+    profile?.aadhaarNumber || "Not Added",
+    <User />,
+  ],
+
+  [
+    "Aadhaar Status",
+    profile?.aadhaarVerified
+      ? "Verified"
+      : "Not Verified",
+    <ShieldAlert />,
+  ],
             ].map(([label, value, icon]) => (
               <div
                 key={String(label)}

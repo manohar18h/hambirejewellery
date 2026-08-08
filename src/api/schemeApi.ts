@@ -16,6 +16,9 @@ export type SchemeRegisterPayload = {
   pincode: string;
   aadhaarNumber: string;
   panNumber: string;
+
+  // Firebase OTP verification proof
+  firebaseIdToken: string;
 };
 
 export const sendSchemeOtp = async (phoneNumber: string) => {
@@ -98,11 +101,19 @@ export const checkForgotPasswordMobile = async (phoneNumber: string) => {
 export const resetSchemePassword = async (
   phoneNumber: string,
   password: string,
+  firebaseIdToken: string,
 ) => {
-  const res = await schemeApi.post("/scheme/auth/forgot-password/reset", {
-    phoneNumber,
-    password,
-  });
+
+  const res =
+    await schemeApi.post(
+      "/scheme/auth/forgot-password/reset",
+      {
+        phoneNumber,
+        password,
+        firebaseIdToken,
+      },
+    );
+
   return res.data;
 };
 export const getSchemeCustomerProfile = async (customerId: number) => {
@@ -169,4 +180,42 @@ export const verifyCustomerAadhaar = async (
   );
 
   return response.data;
+};
+
+export type SchemeProfileUpdatePayload = {
+  name: string;
+  village: string;
+  phoneNumber: string;
+  emailId?: string | null;
+  fullAddress?: string | null;
+  pincode?: string | null;
+  aadhaarNumber?: string | null;
+  panNumber?: string | null;
+};
+
+export const updateSchemeCustomerProfile = async (
+  customerId: number,
+  data: SchemeProfileUpdatePayload,
+) => {
+  const res = await schemeApi.put(
+    `/scheme/auth/profile/${customerId}`,
+    data,
+  );
+
+  return res.data;
+};
+
+export const verifySchemeProfileMobile = async (
+  customerId: number,
+  firebaseIdToken: string,
+) => {
+
+  const res = await schemeApi.post(
+    `/scheme/auth/profile/${customerId}/verify-mobile`,
+    {
+      firebaseIdToken,
+    },
+  );
+
+  return res.data;
 };

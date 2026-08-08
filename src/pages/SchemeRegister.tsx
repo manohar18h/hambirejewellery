@@ -111,7 +111,8 @@ const [oldExchangeAmount, setOldExchangeAmount] = useState("");
   const goldRate = rates?.gold24Rate || 10000;
 
 const [showActiveSchemes, setShowActiveSchemes] = useState(false);
-
+const [forgotFirebaseIdToken, setForgotFirebaseIdToken] =
+  useState("");
 type SchemeSection =
   | "PRE_BOOKING"
   | "FLEXI_11"
@@ -707,6 +708,7 @@ const logoutSchemeCustomer = () => {
   setStep("login");
 };
 
+
 const handleOtpVerify = async () => {
   if (otp.length !== 6) {
     return alert("Enter valid 6 digit OTP");
@@ -717,17 +719,47 @@ const handleOtpVerify = async () => {
   }
 
   try {
-    // Firebase OTP verification
-    await confirmationResult.confirm(otp);
 
-    // Create customer
+    /*
+     * 1. Verify OTP with Firebase
+     */
+    const credential =
+      await confirmationResult.confirm(otp);
+
+    /*
+     * 2. Get Firebase ID token.
+     *
+     * This token proves which phone number
+     * actually completed OTP verification.
+     */
+    const firebaseIdToken =
+      await credential.user.getIdToken(true);
+
+    if (!firebaseIdToken) {
+      throw new Error(
+        "Firebase verification token was not received"
+      );
+    }
+
+    /*
+     * 3. Send registration data +
+     * Firebase ID token to Spring Boot.
+     *
+     * Backend MUST verify this token.
+     */
     const customer =
       await registerSchemeCustomer({
         ...registerData,
         panNumber: "",
+        firebaseIdToken,
       });
 
-    // Verify OCR again, upload and save verified status
+    /*
+     * 4. Customer now exists and mobileVerified=true
+     * because BACKEND verified Firebase token.
+     *
+     * Continue Aadhaar verification.
+     */
     if (aadhaarFile) {
       const aadhaarResult =
         await verifyCustomerAadhaar(
@@ -739,7 +771,7 @@ const handleOtpVerify = async () => {
       if (!aadhaarResult.verified) {
         throw new Error(
           aadhaarResult.message ||
-          "Aadhaar verification failed"
+            "Aadhaar verification failed"
         );
       }
     }
@@ -750,8 +782,11 @@ const handleOtpVerify = async () => {
 
     setOtp("");
     setConfirmationResult(null);
+
     setStep("login");
+
   } catch (error: any) {
+
     console.error(
       "OTP/Register error:",
       error
@@ -760,19 +795,21 @@ const handleOtpVerify = async () => {
     if (error.code?.startsWith("auth/")) {
       alert(
         error.message ||
-        "Invalid or expired OTP"
+          "Invalid or expired OTP"
       );
       return;
     }
 
     alert(
       error.response?.data?.message ||
-      error.response?.data?.error ||
-      error.message ||
-      "Registration failed"
+        error.response?.data?.error ||
+        error.response?.data ||
+        error.message ||
+        "Registration failed"
     );
   }
 };
+
 const handleRegisterChange = (
   field: keyof typeof registerData,
   value: string
@@ -828,44 +865,116 @@ const handleForgotMobile = async () => {
 };
 
 
- const handleForgotOtp = async () => {
+const handleForgotOtp = async () => {
+  if (otp.length !== 6) {
+    return alert(
+      "Enter valid 6 digit OTP"
+    );
+  }
+
+  if (!confirmationResult) {
+    return alert(
+      "Please send OTP first"
+    );
+  }
+
   try {
-    await confirmationResult.confirm(otp);
+
+    /*
+     * Verify OTP through Firebase.
+     */
+    const credential =
+      await confirmationResult.confirm(otp);
+
+    /*
+     * Get Firebase token proving
+     * ownership of this mobile number.
+     */
+    const firebaseIdToken =
+      await credential.user.getIdToken(true);
+
+    if (!firebaseIdToken) {
+      throw new Error(
+        "Firebase verification token was not received"
+      );
+    }
+
+    /*
+     * Keep token until password reset.
+     */
+    setForgotFirebaseIdToken(
+      firebaseIdToken
+    );
 
     setStep("resetPassword");
-  } catch (error) {
-    console.error(error);
-    alert("Invalid OTP");
+
+  } catch (error: any) {
+
+    console.error(
+      "Forgot password OTP verification error:",
+      error
+    );
+
+    alert(
+      error?.message ||
+        "Invalid or expired OTP"
+    );
   }
 };
 
 
 
-  const handleResetPassword = async () => {
+ const handleResetPassword = async () => {
+
   if (newPassword.length < 6) {
-    return alert("Password must be at least 6 characters");
+    return alert(
+      "Password must be at least 6 characters"
+    );
   }
 
   if (newPassword !== confirmPassword) {
-    return alert("Password and confirm password not matching");
+    return alert(
+      "Password and confirm password not matching"
+    );
+  }
+
+  if (!forgotFirebaseIdToken) {
+    return alert(
+      "Mobile verification expired. Please verify OTP again."
+    );
   }
 
   try {
-    await resetSchemePassword(mobile, newPassword);
 
-    alert("Password reset successful. Please login.");
+    await resetSchemePassword(
+      mobile,
+      newPassword,
+      forgotFirebaseIdToken
+    );
+
+    alert(
+      "Password reset successful. Please login."
+    );
 
     setPassword("");
     setOtp("");
     setNewPassword("");
     setConfirmPassword("");
+
+    setForgotFirebaseIdToken("");
+
     setConfirmationResult(null);
+
     setStep("login");
+
   } catch (error: any) {
+
     console.error(error);
+
     alert(
       error.response?.data?.message ||
         error.response?.data?.error ||
+        error.response?.data ||
         "Password reset failed"
     );
   }
