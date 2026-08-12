@@ -9,13 +9,14 @@ import {
 } from "lucide-react";
 
 const rows = [
-  ["After 5 Months", "Gold jewellery with VA charges up to 5% covered."],
-  ["After 6 Months", "Gold jewellery with VA charges up to 6% covered."],
-  ["After 7 Months", "Gold jewellery with VA charges up to 7% covered."],
-  ["After 8 Months", "Gold jewellery with VA charges up to 8% covered."],
-  ["After 9 Months", "Gold jewellery with VA charges up to 9% covered."],
-  ["After 10 Months", "Gold jewellery with VA charges up to 10% covered."],
-  ["After 11 Months", "Gold jewellery with full eligible VA benefit."],
+  ["1–5 Months", "Redeem anytime with 0% wastage discount."],
+  ["After 6 Months", "Eligible for 6% wastage discount."],
+  ["After 7 Months", "Eligible for 7% wastage discount."],
+  ["After 8 Months", "Eligible for 8% wastage discount."],
+  ["After 9 Months", "Eligible for 9% wastage discount."],
+  ["After 10 Months", "Eligible for 10% wastage discount."],
+  ["After 11 Months", "Eligible for 11% wastage discount."],
+  ["After 12 Months", "Eligible for full wastage discount."],
 ];
 
 const PreBookingScheme = () => {
@@ -38,8 +39,9 @@ const PreBookingScheme = () => {
             </h1>
 
 <p className="mt-6 max-w-[700px] text-[19px] leading-8 text-white/75 max-md:text-[16px] max-md:leading-7">
-              Something valuable, something different. 100% no V.A. charges for
-              eligible jewellery.
+              Book or exchange today and enjoy increasing wastage benefits based on
+the completed scheme period, with full eligible wastage benefit after
+12 months.
             </p>
 
             <p className="mt-6 max-w-[700px] text-[19px] leading-8 text-white/75">
@@ -111,7 +113,7 @@ className={`${clickable} mt-9 rounded-full bg-[#f5c542] px-10 py-4 text-[17px] f
 
           <div className="mt-10 grid grid-cols-4 gap-6 max-md:grid-cols-2 max-md:gap-4">
             {[
-              ["No Wastage Benefits", <BadgePercent />],
+             ["Up to Full Wastage Benefit", <BadgePercent />],
               ["Old Gold Exchange", <RefreshCcw />],
               ["Secure Valuation", <ShieldCheck />],
               ["Premium Jewellery", <Gem />],

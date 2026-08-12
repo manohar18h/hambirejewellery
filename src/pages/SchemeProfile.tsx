@@ -111,12 +111,13 @@ const profileRecaptchaRef =
 
   useEffect(() => {
 
-  if (
-    step !== "profile" ||
-    profile?.mobileVerified
-  ) {
-    return;
-  }
+ if (
+  step !== "profile" ||
+  !editingProfile ||
+  profile?.mobileVerified
+) {
+  return;
+}
 
   const timer = window.setTimeout(() => {
 
@@ -178,6 +179,7 @@ const profileRecaptchaRef =
 
 }, [
   step,
+  editingProfile,
   profile?.mobileVerified,
 ]);
 
@@ -220,6 +222,7 @@ const profileRecaptchaRef =
     } catch (error) {
       console.error(error);
       alert("Failed to load profile");
+      
       logoutCustomer();
     } finally {
       setLoading(false);
@@ -954,7 +957,7 @@ const phoneHasChanged =
   }
 
   return (
-    <div className="min-h-screen bg-[#fbf7ef] px-8 py-14 max-md:px-4 max-md:py-6 max-md:pb-[90px]">
+    < div  className=" -mt-6 min-h-screen bg-[#fbf7ef] px-8 py-14 max-md:px-4 max-md:py-6 max-md:pb-[90px]">
       {step !== "profile" ? (
         <div className="mx-auto grid max-w-[1450px] grid-cols-[420px_1fr] gap-10 max-md:grid-cols-1 max-md:gap-5">
           <div className="rounded-[34px] bg-gradient-to-br from-[#120902] via-[#251505] to-black p-8 text-white shadow-2xl max-md:p-6">
@@ -1218,425 +1221,742 @@ const phoneHasChanged =
             )}
           </div>
         </div>
-      ) : (
-<div className="mx-auto max-w-[1250px] rounded-[36px] bg-white p-10 shadow-2xl max-md:p-5">    
-        <div className="flex items-start justify-between max-md:flex-col max-md:gap-4">
-            <div>
-              <p className="text-[14px] font-bold uppercase tracking-[4px] text-[#b98213]">
-                Hambire Jewellery
-              </p>
+        ) : (
+  <div className="mx-auto max-w-[1250px]">
 
-             <h1 className="mt-3 font-serif text-[48px] max-md:text-[32px]">
-                Customer Account Profile
-              </h1>
-            </div>
+    {/* ============================= */}
+    {/* PREMIUM PROFILE HEADER */}
+    {/* ============================= */}
 
-         <div className="flex gap-3">
-  <button
-    onClick={handleOpenProfileEdit}
-    className={`${clickable} rounded-full border border-[#b98213] px-7 py-3 font-bold text-[#b98213]`}
-  >
-    Edit Profile
-  </button>
+    <div className="overflow-hidden rounded-[34px] bg-white shadow-2xl">
 
-  <button
-    onClick={logoutCustomer}
-    className={`${clickable} rounded-full border border-gray-300 px-7 py-3 font-bold text-gray-700`}
-  >
-    Logout
-  </button>
-</div>
+      <div className="bg-gradient-to-r from-[#140d2d] via-[#2b185c] to-[#4b1f91] px-9 py-8 text-white max-md:px-5">
+
+        <div className="flex items-center justify-between gap-5 max-md:flex-col max-md:items-start">
+
+          <div>
+            <p className="text-[12px] font-bold uppercase tracking-[4px] text-[#f5c542]">
+              Hambire Jewellery
+            </p>
+
+            <h1 className="mt-2 font-serif text-[42px] font-bold max-md:text-[30px]">
+              Customer Profile
+            </h1>
+
+            <p className="mt-2 text-white/70">
+              Your personal details and verification status
+            </p>
           </div>
 
-          {editingProfile && (
-  <div className="mt-8 rounded-[28px] border border-[#b98213]/30 bg-[#fffaf0] p-7">
-    <h2 className="text-[28px] font-bold">
-      Edit Profile
-    </h2>
+          <div className="flex gap-3">
 
-    <div className="mt-6 grid grid-cols-2 gap-5 max-md:grid-cols-1">
+            <button
+              onClick={handleOpenProfileEdit}
+              className={`${clickable} rounded-full bg-[#f5c542] px-7 py-3 font-bold text-black shadow-lg transition hover:scale-[1.02]`}
+            >
+              Edit Profile
+            </button>
 
-      <div>
-        <label className="mb-2 block font-semibold">
-          Customer Name
-        </label>
+            <button
+              onClick={logoutCustomer}
+              className={`${clickable} rounded-full border border-white/30 bg-white/10 px-7 py-3 font-bold text-white transition hover:bg-white/20`}
+            >
+              Logout
+            </button>
 
-        <input
-          value={editName}
-          disabled={profile?.aadhaarVerified}
-          onChange={(e) =>
-            setEditName(e.target.value)
-          }
-          className={`w-full rounded-xl border px-4 py-3 ${
-            profile?.aadhaarVerified
-              ? "cursor-not-allowed bg-gray-200 text-gray-500"
-              : "bg-white"
-          }`}
-        />
-
- {profile?.aadhaarVerified && (
-    <p className="mt-1 text-sm text-gray-500">
-      Name is locked because Aadhaar has been verified.
-    </p>
-  )}
-      
-      </div>
-
-   
-
-      <div>
-        <label className="mb-2 block font-semibold">
-          Mobile Number
-        </label>
-
-        <input
-          value={editPhone}
-          maxLength={10}
-          onChange={(e) =>
-            setEditPhone(
-              e.target.value.replace(/\D/g, "")
-            )
-          }
-          className="w-full rounded-xl border bg-white px-4 py-3"
-        />
-
-        {phoneHasChanged && (
-          <p className="mt-2 text-sm font-semibold text-orange-600">
-            Changing the mobile number will remove the existing OTP verification.
-            The new mobile number must be verified again.
-          </p>
-        )}
-      </div>
-
-      <div>
-        <label className="mb-2 block font-semibold">
-          Village / City
-        </label>
-
-        <input
-          value={editVillage}
-          onChange={(e) =>
-            setEditVillage(e.target.value)
-          }
-          className="w-full rounded-xl border bg-white px-4 py-3"
-        />
-      </div>
-
-      <div>
-        <label className="mb-2 block font-semibold">
-          Email
-        </label>
-
-        <input
-          value={editEmail}
-          onChange={(e) =>
-            setEditEmail(e.target.value)
-          }
-          className="w-full rounded-xl border bg-white px-4 py-3"
-        />
-      </div>
-
-      <div>
-        <label className="mb-2 block font-semibold">
-          Full Address
-        </label>
-
-        <input
-          value={editFullAddress}
-          onChange={(e) =>
-            setEditFullAddress(e.target.value)
-          }
-          className="w-full rounded-xl border bg-white px-4 py-3"
-        />
-      </div>
-
-      <div>
-        <label className="mb-2 block font-semibold">
-          Pincode
-        </label>
-
-        <input
-          value={editPincode}
-          maxLength={6}
-          onChange={(e) =>
-            setEditPincode(
-              e.target.value.replace(/\D/g, "")
-            )
-          }
-          className="w-full rounded-xl border bg-white px-4 py-3"
-        />
-      </div>
-
-      <div>
-        <label className="mb-2 block font-semibold">
-          Aadhaar Number
-        </label>
-
-        <input
-          value={
-            profile?.aadhaarVerified
-              ? "XXXX XXXX XXXX"
-              : editAadhaarNumber
-          }
-          disabled={profile?.aadhaarVerified}
-          maxLength={12}
-          onChange={(e) =>
-            setEditAadhaarNumber(
-              e.target.value
-                .replace(/\D/g, "")
-                .slice(0, 12)
-            )
-          }
-          className={`w-full rounded-xl border px-4 py-3 ${
-            profile?.aadhaarVerified
-              ? "cursor-not-allowed bg-gray-200 text-gray-500"
-              : "bg-white"
-          }`}
-        />
-
-        <p className="mt-1 text-sm text-gray-500">
-          {profile?.aadhaarVerified
-            ? "Aadhaar is verified and cannot be changed."
-            : "Aadhaar can be changed until verification."}
-        </p>
-      </div>
-
-      <div>
-        <label className="mb-2 block font-semibold">
-          PAN Number
-        </label>
-
-        <input
-          value={editPanNumber}
-          onChange={(e) =>
-            setEditPanNumber(
-              e.target.value.toUpperCase()
-            )
-          }
-          className="w-full rounded-xl border bg-white px-4 py-3"
-        />
-      </div>
-    </div>
-
-    <div className="mt-7 flex gap-3">
-      <button
-        disabled={savingProfile}
-        onClick={handleSaveProfile}
-        className="rounded-full bg-black px-7 py-3 font-bold text-white"
-      >
-        {savingProfile
-          ? "Saving..."
-          : "Save Changes"}
-      </button>
-
-      <button
-        disabled={savingProfile}
-        onClick={() => setEditingProfile(false)}
-        className="rounded-full border border-gray-300 px-7 py-3 font-bold"
-      >
-        Cancel
-      </button>
-    </div>
-  </div>
-)}
-
-{!(
-  profile?.mobileVerified &&
-  profile?.aadhaarVerified
-) && (
-  <div className="mt-8 flex gap-4 rounded-[24px] border border-yellow-300 bg-yellow-50 p-6 text-yellow-800 max-md:flex-col max-md:p-4">
-    <ShieldAlert className="h-8 w-8" />
-
-    <div>
-      <h3 className="text-[20px] font-bold">
-        Scheme Access Verification Required
-      </h3>
-
-      <p className="mt-1 text-[16px]">
-        Mobile OTP verification and Aadhaar verification
-        must both be completed before activating
-        Hambire Jewellery schemes.
-      </p>
-    </div>
-  </div>
-)}
-
-{profile?.mobileVerified &&
- profile?.aadhaarVerified && (
-  <div className="mt-8 rounded-[24px] border border-green-300 bg-green-50 p-6 text-green-700">
-
-    <h3 className="text-[20px] font-bold">
-      Profile Verified Successfully
-    </h3>
-
-    <p className="mt-1 text-[16px]">
-      Mobile number and Aadhaar are verified.
-      You can now activate Hambire Jewellery schemes.
-    </p>
-  </div>
-)}
-
-
-{!profile?.mobileVerified && (
-  <div className="mt-10 rounded-[28px] bg-[#111] p-8 text-white max-md:p-5">
-
-    <h3 className="font-serif text-[30px] text-[#f5c542] max-md:text-[24px]">
-      Verify Mobile Number
-    </h3>
-
-    <p className="mt-2 text-white/70">
-      Your current mobile number{" "}
-      <strong>{profile?.phoneNumber}</strong>{" "}
-      must be verified using OTP.
-    </p>
-
-    <div
-      id="profile-mobile-recaptcha"
-      className="mt-6 flex justify-center"
-    />
-
-    {!profileConfirmationResult ? (
-      <button
-        disabled={profileSendingOtp}
-        onClick={handleSendProfileMobileOtp}
-        className={`${clickable} mt-6 w-full rounded-full bg-[#f5c542] px-6 py-4 font-bold text-black`}
-      >
-        {profileSendingOtp
-          ? "Sending OTP..."
-          : "Send OTP"}
-      </button>
-    ) : (
-      <>
-        <input
-          value={profileOtp}
-          maxLength={6}
-          onChange={(e) =>
-            setProfileOtp(
-              e.target.value
-                .replace(/\D/g, "")
-                .slice(0, 6)
-            )
-          }
-          placeholder="Enter 6 digit OTP"
-          className="mt-6 w-full rounded-xl bg-white px-4 py-4 text-[22px] tracking-[6px] text-black"
-        />
-
-        <button
-          disabled={profileVerifyingOtp}
-          onClick={handleVerifyProfileMobileOtp}
-          className={`${clickable} mt-4 w-full rounded-full bg-[#f5c542] px-6 py-4 font-bold text-black`}
-        >
-          {profileVerifyingOtp
-            ? "Verifying..."
-            : "Verify Mobile Number"}
-        </button>
-      </>
-    )}
-  </div>
-)}
-        
-
-          <div className="mt-10 grid grid-cols-2 gap-7 max-md:grid-cols-1 max-md:gap-4">
-           {[
-  ["Name", profile?.name, <User />],
-  ["Mobile", profile?.phoneNumber, <Phone />],
-
-  [
-    "Mobile Status",
-    profile?.mobileVerified
-      ? "Verified"
-      : "Not Verified",
-    <Phone />,
-  ],
-
-  ["Email", profile?.emailId || "-", <Mail />],
-  ["Village", profile?.village || "-", <MapPin />],
-  ["Address", profile?.fullAddress || "-", <MapPin />],
-  ["Pincode", profile?.pincode || "-", <MapPin />],
-
-  [
-    "Aadhaar Number",
-    profile?.aadhaarNumber || "Not Added",
-    <User />,
-  ],
-
-  [
-    "Aadhaar Status",
-    profile?.aadhaarVerified
-      ? "Verified"
-      : "Not Verified",
-    <ShieldAlert />,
-  ],
-            ].map(([label, value, icon]) => (
-              <div
-                key={String(label)}
-                className="rounded-[24px] bg-[#fbf7ef] p-6 shadow"
-              >
-                <div className="flex items-center gap-3 text-[#b98213]">
-                  {icon}
-                  <p className="font-bold">{label}</p>
-                </div>
-
-                <h3 className="mt-3 break-words text-[22px] font-bold text-black max-md:text-[18px]">
-                  {String(value)}
-                </h3>
-              </div>
-            ))}
           </div>
-
-          {!profile?.aadhaarVerified && (
-<div className="mt-12 rounded-[28px] bg-[#111] p-8 text-white max-md:p-5">            
-   <h3 className="font-serif text-[30px] text-[#f5c542] max-md:text-[24px]">
-                Verify Aadhaar for Scheme Access
-              </h3>
-
-              <div className="mt-6 grid grid-cols-2 gap-6 max-md:grid-cols-1">
-                <div>
-                  <label className="mb-2 block text-white/70">
-                    Aadhaar Number
-                  </label>
-                  <input
-                    value={profileAadhaarNumber}
-                    maxLength={12}
-                    onChange={(e) =>
-                      setProfileAadhaarNumber(
-                        e.target.value.replace(/\D/g, "")
-                      )
-                    }
-                    placeholder="Enter 12 digit Aadhaar number"
-                    className="w-full rounded-xl border border-white/20 bg-black/40 px-4 py-4 outline-none"
-                  />
-                </div>
-
-                <div>
-                  <label className="mb-2 block text-white/70">
-                    Aadhaar Document
-                  </label>
-                  <input
-                    type="file"
-                    accept="image/*"
-                    onChange={(e) =>
-                      setProfileAadhaarFile(e.target.files?.[0] || null)
-                    }
-                    className="w-full rounded-xl border border-white/20 bg-black/40 px-4 py-4 outline-none"
-                  />
-                </div>
-              </div>
-
-              <button
-                disabled={verifyingAadhaar}
-                onClick={handleProfileAadhaarVerify}
-                className={`${clickable} mt-6 flex w-full items-center justify-center gap-3 rounded-full bg-[#f5c542] px-6 py-4 font-bold text-black`}
-              >
-                <Upload className="h-5 w-5" />
-                {verifyingAadhaar
-                  ? "Verifying Aadhaar..."
-                  : "Verify Aadhaar"}
-              </button>
-            </div>
-          )}
         </div>
-      )}
+      </div>
+
+
+      {/* ============================= */}
+      {/* PROFILE INFORMATION */}
+      {/* ============================= */}
+
+      <div className="p-9 max-md:p-5">
+
+        <div className="grid grid-cols-2 gap-5 max-md:grid-cols-1">
+
+          {[
+            ["Name", profile?.name || "-", <User />],
+
+            [
+              "Mobile Number",
+              profile?.phoneNumber || "-",
+              <Phone />,
+            ],
+
+            [
+              "Email",
+              profile?.emailId || "-",
+              <Mail />,
+            ],
+
+            [
+              "Village / City",
+              profile?.village || "-",
+              <MapPin />,
+            ],
+
+            [
+              "Full Address",
+              profile?.fullAddress || "-",
+              <MapPin />,
+            ],
+
+            [
+              "Pincode",
+              profile?.pincode || "-",
+              <MapPin />,
+            ],
+
+            [
+              "PAN Number",
+              profile?.panNumber || "Not Added",
+              <User />,
+            ],
+
+            [
+              "Aadhaar Number",
+              profile?.aadhaarNumber
+                ? "XXXX XXXX " +
+                  String(profile.aadhaarNumber).slice(-4)
+                : "Not Added",
+              <ShieldAlert />,
+            ],
+
+          ].map(([label, value, icon]) => (
+
+            <div
+              key={String(label)}
+              className="rounded-[22px] border border-[#eadfcb] bg-[#fcfaf5] p-5 transition hover:-translate-y-[1px] hover:shadow-md"
+            >
+
+              <div className="flex items-center gap-3">
+
+                <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-[#f5c542]/20 text-[#a87100]">
+                  {icon}
+                </div>
+
+                <div>
+                  <p className="text-[13px] font-semibold uppercase tracking-wide text-gray-500">
+                    {label}
+                  </p>
+
+                  <p className="mt-1 break-words text-[18px] font-bold text-[#191919]">
+                    {String(value)}
+                  </p>
+                </div>
+
+              </div>
+            </div>
+
+          ))}
+
+        </div>
+
+
+        {/* ============================= */}
+        {/* VERIFICATION STATUS */}
+        {/* ============================= */}
+
+        <div className="mt-9">
+
+          <h2 className="text-[23px] font-bold text-[#181818]">
+            Verification Status
+          </h2>
+
+          <div className="mt-4 grid grid-cols-2 gap-5 max-md:grid-cols-1">
+
+            {/* MOBILE STATUS */}
+
+            <div
+              className={`rounded-[24px] border p-6 ${
+                profile?.mobileVerified
+                  ? "border-green-200 bg-green-50"
+                  : "border-orange-200 bg-orange-50"
+              }`}
+            >
+
+              <div className="flex items-center justify-between gap-4">
+
+                <div>
+                  <p className="text-[14px] font-semibold text-gray-600">
+                    Mobile Verification
+                  </p>
+
+                  <h3
+                    className={`mt-2 text-[20px] font-bold ${
+                      profile?.mobileVerified
+                        ? "text-green-700"
+                        : "text-orange-700"
+                    }`}
+                  >
+                    {profile?.mobileVerified
+                      ? "OTP Verified"
+                      : "OTP Not Verified"}
+                  </h3>
+                </div>
+
+                <div
+                  className={`flex h-12 w-12 items-center justify-center rounded-full ${
+                    profile?.mobileVerified
+                      ? "bg-green-100 text-green-700"
+                      : "bg-orange-100 text-orange-700"
+                  }`}
+                >
+                  <Phone />
+                </div>
+
+              </div>
+            </div>
+
+
+            {/* AADHAAR STATUS */}
+
+            <div
+              className={`rounded-[24px] border p-6 ${
+                profile?.aadhaarVerified
+                  ? "border-green-200 bg-green-50"
+                  : "border-red-200 bg-red-50"
+              }`}
+            >
+
+              <div className="flex items-center justify-between gap-4">
+
+                <div>
+                  <p className="text-[14px] font-semibold text-gray-600">
+                    Aadhaar Verification
+                  </p>
+
+                  <h3
+                    className={`mt-2 text-[20px] font-bold ${
+                      profile?.aadhaarVerified
+                        ? "text-green-700"
+                        : "text-red-700"
+                    }`}
+                  >
+                    {profile?.aadhaarVerified
+                      ? "Aadhaar Verified"
+                      : "Not Verified"}
+                  </h3>
+                </div>
+
+                <div
+                  className={`flex h-12 w-12 items-center justify-center rounded-full ${
+                    profile?.aadhaarVerified
+                      ? "bg-green-100 text-green-700"
+                      : "bg-red-100 text-red-700"
+                  }`}
+                >
+                  <ShieldAlert />
+                </div>
+
+              </div>
+            </div>
+
+          </div>
+
+        </div>
+
+      </div>
+    </div>
+
+
+    {/* ================================================= */}
+    {/* EDIT PROFILE */}
+    {/* ================================================= */}
+
+   {editingProfile && (
+  <div
+    className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/60 p-4 backdrop-blur-sm"
+    onClick={() => setEditingProfile(false)}
+  >
+    <div
+      className="max-h-[92vh] w-full max-w-[1100px] overflow-y-auto rounded-[30px] bg-white shadow-2xl"
+      onClick={(e) => e.stopPropagation()}
+    >
+        {/* EDIT HEADER */}
+
+<div className="sticky top-0 z-20 bg-gradient-to-r from-[#16152c] via-[#29204b] to-[#4b1f91] px-8 py-7 text-white max-md:px-5">
+          <p className="text-[12px] font-bold uppercase tracking-[4px] text-[#f5c542]">
+            Customer Account
+          </p>
+
+          <h2 className="mt-2 font-serif text-[36px] font-bold max-md:text-[28px]">
+            Edit Profile & Verification
+          </h2>
+
+          <p className="mt-2 text-white/70">
+            Update customer information and complete pending verification.
+          </p>
+
+        </div>
+
+
+        <div className="p-8 max-md:p-5">
+
+          {/* ========================= */}
+          {/* EDITABLE FIELDS */}
+          {/* ========================= */}
+
+          <div className="grid grid-cols-2 gap-5 max-md:grid-cols-1">
+
+            {/* NAME */}
+
+            <div>
+              <label className="mb-2 block text-sm font-bold text-gray-700">
+                Customer Name
+              </label>
+
+              <input
+                value={editName}
+                disabled={profile?.aadhaarVerified}
+                onChange={(e) =>
+                  setEditName(e.target.value)
+                }
+                className={`w-full rounded-xl border px-4 py-3.5 outline-none ${
+                  profile?.aadhaarVerified
+                    ? "cursor-not-allowed border-gray-200 bg-gray-100 text-gray-500"
+                    : "border-gray-300 bg-white focus:border-[#b98213]"
+                }`}
+              />
+
+              {profile?.aadhaarVerified && (
+                <p className="mt-2 text-xs text-gray-500">
+                  Name is locked because Aadhaar has been verified.
+                </p>
+              )}
+            </div>
+
+
+            {/* MOBILE */}
+
+            <div>
+              <label className="mb-2 block text-sm font-bold text-gray-700">
+                Mobile Number
+              </label>
+
+              <input
+                value={editPhone}
+                maxLength={10}
+                onChange={(e) =>
+                  setEditPhone(
+                    e.target.value
+                      .replace(/\D/g, "")
+                      .slice(0, 10)
+                  )
+                }
+                className="w-full rounded-xl border border-gray-300 bg-white px-4 py-3.5 outline-none focus:border-[#b98213]"
+              />
+
+              {phoneHasChanged && (
+                <div className="mt-2 rounded-lg bg-orange-50 px-3 py-2 text-sm font-semibold text-orange-700">
+                  Changing the mobile number will remove current OTP verification.
+                  The new number must be verified again.
+                </div>
+              )}
+            </div>
+
+
+            {/* VILLAGE */}
+
+            <div>
+              <label className="mb-2 block text-sm font-bold text-gray-700">
+                Village / City
+              </label>
+
+              <input
+                value={editVillage}
+                onChange={(e) =>
+                  setEditVillage(e.target.value)
+                }
+                className="w-full rounded-xl border border-gray-300 px-4 py-3.5 outline-none focus:border-[#b98213]"
+              />
+            </div>
+
+
+            {/* EMAIL */}
+
+            <div>
+              <label className="mb-2 block text-sm font-bold text-gray-700">
+                Email ID
+              </label>
+
+              <input
+                value={editEmail}
+                onChange={(e) =>
+                  setEditEmail(e.target.value)
+                }
+                className="w-full rounded-xl border border-gray-300 px-4 py-3.5 outline-none focus:border-[#b98213]"
+              />
+            </div>
+
+
+            {/* PINCODE */}
+
+            <div>
+              <label className="mb-2 block text-sm font-bold text-gray-700">
+                Pincode
+              </label>
+
+              <input
+                value={editPincode}
+                maxLength={6}
+                onChange={(e) =>
+                  setEditPincode(
+                    e.target.value
+                      .replace(/\D/g, "")
+                      .slice(0, 6)
+                  )
+                }
+                className="w-full rounded-xl border border-gray-300 px-4 py-3.5 outline-none focus:border-[#b98213]"
+              />
+            </div>
+
+
+            {/* PAN */}
+
+            <div>
+              <label className="mb-2 block text-sm font-bold text-gray-700">
+                PAN Number
+              </label>
+
+              <input
+                value={editPanNumber}
+                onChange={(e) =>
+                  setEditPanNumber(
+                    e.target.value.toUpperCase()
+                  )
+                }
+                className="w-full rounded-xl border border-gray-300 px-4 py-3.5 outline-none focus:border-[#b98213]"
+              />
+            </div>
+
+
+            {/* ADDRESS */}
+
+            <div className="col-span-2 max-md:col-span-1">
+
+              <label className="mb-2 block text-sm font-bold text-gray-700">
+                Full Address
+              </label>
+
+              <textarea
+                value={editFullAddress}
+                onChange={(e) =>
+                  setEditFullAddress(e.target.value)
+                }
+                rows={3}
+                className="w-full resize-none rounded-xl border border-gray-300 px-4 py-3.5 outline-none focus:border-[#b98213]"
+              />
+
+            </div>
+
+
+            {/* AADHAAR */}
+
+            <div className="col-span-2 max-md:col-span-1">
+
+              <label className="mb-2 block text-sm font-bold text-gray-700">
+                Aadhaar Number
+              </label>
+
+              <input
+                value={
+                  profile?.aadhaarVerified
+                    ? "XXXX XXXX XXXX"
+                    : editAadhaarNumber
+                }
+                disabled={profile?.aadhaarVerified}
+                maxLength={12}
+                onChange={(e) =>
+                  setEditAadhaarNumber(
+                    e.target.value
+                      .replace(/\D/g, "")
+                      .slice(0, 12)
+                  )
+                }
+                className={`w-full rounded-xl border px-4 py-3.5 ${
+                  profile?.aadhaarVerified
+                    ? "cursor-not-allowed border-gray-200 bg-gray-100 text-gray-500"
+                    : "border-gray-300 bg-white outline-none focus:border-[#b98213]"
+                }`}
+              />
+
+              {profile?.aadhaarVerified && (
+                <p className="mt-2 text-xs text-gray-500">
+                  Aadhaar number is verified and cannot be changed.
+                </p>
+              )}
+
+            </div>
+
+          </div>
+
+
+          {/* ========================= */}
+          {/* VERIFICATION AREA */}
+          {/* ========================= */}
+
+          <div className="mt-9 border-t border-gray-200 pt-8">
+
+            <h3 className="text-[24px] font-bold text-[#171717]">
+              Verification Status
+            </h3>
+
+            <p className="mt-1 text-sm text-gray-500">
+              Complete pending verification before activating schemes.
+            </p>
+
+
+            <div className="mt-6 grid grid-cols-2 gap-5 max-md:grid-cols-1">
+
+              {/* ================= MOBILE ================= */}
+
+              <div
+                className={`rounded-[24px] border p-6 ${
+                  profile?.mobileVerified
+                    ? "border-green-200 bg-green-50"
+                    : "border-orange-200 bg-[#fff8ee]"
+                }`}
+              >
+
+                <div className="flex items-center justify-between">
+
+                  <div>
+                    <h4 className="text-[20px] font-bold">
+                      Mobile OTP
+                    </h4>
+
+                    <span
+                      className={`mt-2 inline-block rounded-full px-3 py-1 text-xs font-bold ${
+                        profile?.mobileVerified
+                          ? "bg-green-600 text-white"
+                          : "bg-orange-500 text-white"
+                      }`}
+                    >
+                      {profile?.mobileVerified
+                        ? "Verified"
+                        : "Not Verified"}
+                    </span>
+                  </div>
+
+                  <Phone className="h-7 w-7" />
+                </div>
+
+
+                {profile?.mobileVerified ? (
+
+                  <div className="mt-6 rounded-xl bg-green-100 p-4 text-center font-semibold text-green-700">
+                    Mobile number has already been verified.
+                  </div>
+
+                ) : (
+                  <>
+
+                    <div
+                      id="profile-mobile-recaptcha"
+                      className="mt-6 flex justify-center"
+                    />
+
+                    {!profileConfirmationResult ? (
+
+                      <button
+                        disabled={
+                          profileSendingOtp ||
+                          !profileRecaptchaVerified
+                        }
+                        onClick={handleSendProfileMobileOtp}
+                        className={`mt-5 w-full rounded-xl px-5 py-3.5 font-bold ${
+                          profileRecaptchaVerified
+                            ? `${clickable} bg-[#f5c542] text-black`
+                            : "cursor-not-allowed bg-gray-200 text-gray-400"
+                        }`}
+                      >
+                        {profileSendingOtp
+                          ? "Sending OTP..."
+                          : "Send OTP"}
+                      </button>
+
+                    ) : (
+                      <>
+
+                        <input
+                          value={profileOtp}
+                          maxLength={6}
+                          onChange={(e) =>
+                            setProfileOtp(
+                              e.target.value
+                                .replace(/\D/g, "")
+                                .slice(0, 6)
+                            )
+                          }
+                          placeholder="Enter 6 digit OTP"
+                          className="mt-5 w-full rounded-xl border border-orange-200 bg-white px-4 py-3.5 text-center text-[20px] tracking-[6px] outline-none"
+                        />
+
+                        <button
+                          disabled={profileVerifyingOtp}
+                          onClick={
+                            handleVerifyProfileMobileOtp
+                          }
+                          className={`${clickable} mt-3 w-full rounded-xl bg-black px-5 py-3.5 font-bold text-white`}
+                        >
+                          {profileVerifyingOtp
+                            ? "Verifying..."
+                            : "Verify OTP"}
+                        </button>
+
+                      </>
+                    )}
+
+                  </>
+                )}
+
+              </div>
+
+
+              {/* ================= AADHAAR ================= */}
+
+              <div
+                className={`rounded-[24px] border p-6 ${
+                  profile?.aadhaarVerified
+                    ? "border-green-200 bg-green-50"
+                    : "border-red-200 bg-red-50"
+                }`}
+              >
+
+                <div className="flex items-center justify-between">
+
+                  <div>
+
+                    <h4 className="text-[20px] font-bold">
+                      Aadhaar Verification
+                    </h4>
+
+                    <span
+                      className={`mt-2 inline-block rounded-full px-3 py-1 text-xs font-bold ${
+                        profile?.aadhaarVerified
+                          ? "bg-green-600 text-white"
+                          : "bg-red-500 text-white"
+                      }`}
+                    >
+                      {profile?.aadhaarVerified
+                        ? "Verified"
+                        : "Not Verified"}
+                    </span>
+
+                  </div>
+
+                  <ShieldAlert className="h-7 w-7" />
+
+                </div>
+
+
+                {profile?.aadhaarVerified ? (
+
+                  <div className="mt-6 rounded-xl bg-green-100 p-4 text-center text-green-700">
+
+                    <p className="font-bold">
+                      Aadhaar has already been verified.
+                    </p>
+
+                    <p className="mt-1 text-sm">
+                      Customer name and Aadhaar number are locked.
+                    </p>
+
+                  </div>
+
+                ) : (
+                  <>
+
+                    <input
+                      value={profileAadhaarNumber}
+                      maxLength={12}
+                      onChange={(e) =>
+                        setProfileAadhaarNumber(
+                          e.target.value
+                            .replace(/\D/g, "")
+                            .slice(0, 12)
+                        )
+                      }
+                      placeholder="Enter 12 digit Aadhaar number"
+                      className="mt-6 w-full rounded-xl border border-gray-300 bg-white px-4 py-3.5 outline-none"
+                    />
+
+                    <div className="mt-3 rounded-xl border border-dashed border-gray-300 bg-white p-4">
+
+                      <input
+                        type="file"
+                        accept="image/*"
+                        onChange={(e) =>
+                          setProfileAadhaarFile(
+                            e.target.files?.[0] || null
+                          )
+                        }
+                        className="w-full text-sm"
+                      />
+
+                    </div>
+
+                    <button
+                      disabled={verifyingAadhaar}
+                      onClick={handleProfileAadhaarVerify}
+                      className={`${clickable} mt-4 flex w-full items-center justify-center gap-2 rounded-xl bg-[#f5c542] px-5 py-3.5 font-bold text-black`}
+                    >
+                      <Upload className="h-5 w-5" />
+
+                      {verifyingAadhaar
+                        ? "Verifying Aadhaar..."
+                        : "Verify Aadhaar"}
+                    </button>
+
+                  </>
+                )}
+
+              </div>
+
+            </div>
+          </div>
+
+
+          {/* ========================= */}
+          {/* BUTTONS */}
+          {/* ========================= */}
+
+          <div className="mt-9 flex justify-end gap-3 border-t border-gray-200 pt-6 max-md:flex-col-reverse">
+
+            <button
+              disabled={savingProfile}
+              onClick={() =>
+                setEditingProfile(false)
+              }
+              className="rounded-full border border-gray-300 px-7 py-3 font-bold text-gray-700"
+            >
+              Close
+            </button>
+
+            <button
+              disabled={savingProfile}
+              onClick={handleSaveProfile}
+              className={`${clickable} rounded-full bg-gradient-to-r from-[#b98213] to-[#f5c542] px-8 py-3 font-bold text-black shadow-lg`}
+            >
+              {savingProfile
+                ? "Saving..."
+                : "Save Profile"}
+            </button>
+
+          </div>
+
+        </div>
+        </div>
+      </div>
+    )}
+
+  </div>
+)
+   }
     </div>
   );
 };

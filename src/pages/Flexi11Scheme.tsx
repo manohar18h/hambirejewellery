@@ -32,6 +32,7 @@ const exampleRows = [
   [9, 5000, 14600, "0.342", 5000],
   [10, 5000, 14800, "0.338", 5000],
   [11, 5000, 14900, "0.336", 5000],
+  [12, 5000, 15000, "0.333", 5000],
 ];
 
 
@@ -42,7 +43,7 @@ const Flexi11Scheme = () => {
   const [amount, setAmount] = useState(5000);
   const goldRate = 10000;
 const calculatorRef = useRef<HTMLDivElement | null>(null);
-  const total = amount * 11;
+  const total = amount * 12;
   const goldWeight = useMemo(() => total / goldRate, [total]);
 
 
@@ -64,20 +65,21 @@ const calculatorRef = useRef<HTMLDivElement | null>(null);
     <div className="min-h-screen bg-[#fbf7ef] max-md:pb-[80px]">
 <section className="grid min-h-[70vh] grid-cols-2 items-center gap-12 bg-gradient-to-br from-[#120902] via-[#251505] to-black px-16 py-14 text-white max-md:grid-cols-1 max-md:px-4 max-md:py-10">        <div>
           <p className="text-[15px] font-bold uppercase tracking-[5px] text-[#f5c542]">
-            11 Month Jewellery Purchase Plan
+            12 Month Jewellery Purchase Plan
           </p>
 
           <h1 className="mt-5 font-serif text-[72px] leading-[1.05] max-md:text-[42px]">
-            Flexi Gold 11
+            Flexi Gold 12
           </h1>
 
-<p className="mt-5 max-w-[680px] text-[20px] leading-8 text-white/75 max-md:text-[16px] max-md:leading-7">            Pay monthly for 11 months and enjoy jewellery purchase benefits with
-            100% V.A benefit, gold rate protection, and flexible value-based or
-            weight-based calculation.
+<p className="mt-5 max-w-[680px] text-[20px] leading-8 text-white/75 max-md:text-[16px] max-md:leading-7">       
+     Pay monthly for 12 months and build gold weight with every payment.
+Redeem earlier with month-based wastage benefits, or complete 12 months
+for full eligible wastage benefit.
           </p>
 
          <div className="mt-8 grid max-w-[620px] grid-cols-3 gap-4 max-md:grid-cols-1">
-            {["100% V.A", "11 Months", "Gold Protection"].map((item) => (
+            {["Full Wastage at 12M", "12 Months", "Gold Protection"].map((item) => (
               <div
                 key={item}
                 className="rounded-2xl border border-white/10 bg-white/10 px-5 py-4 text-center"
@@ -108,7 +110,7 @@ className="mt-3 w-full rounded-2xl border border-white/20 bg-black/40 px-5 py-4 
 
           <div className="mt-6 grid grid-cols-2 gap-5 max-md:grid-cols-1">
             <div className="rounded-2xl bg-white/10 p-5">
-              <p className="text-white/60">11 Month Total</p>
+              <p className="text-white/60">12 Month Total</p>
               <h3 className="mt-2 text-[28px] font-bold text-[#f5c542]">
                 ₹{total.toLocaleString("en-IN")}
               </h3>
@@ -137,7 +139,7 @@ className="mt-3 w-full rounded-2xl border border-white/20 bg-black/40 px-5 py-4 
 
 <p className="mx-auto mt-3 max-w-[900px] text-center text-[18px] leading-8 text-gray-700 max-md:text-[16px] max-md:leading-7">
               Choose a monthly installment that suits your budget. At the end of
-            11 months, your accumulated amount or gold weight can be used for
+            12 months, your accumulated amount or gold weight can be used for
             jewellery purchase.
           </p>
 
@@ -166,7 +168,7 @@ className={`${clickable} rounded-[24px] bg-white px-5 py-8 text-[24px] font-bold
                 ["100% VA Benefit", <BadgePercent />],
                 ["Gold Rate Protection", <TrendingUp />],
                 ["Flexible Monthly Saving", <Wallet />],
-                ["Buy Jewellery After 11 Months", <Gem />],
+               ["Full Benefit After 12 Months", <Gem />],
               ].map(([item, icon]) => (
                 <div
                   key={String(item)}
@@ -258,7 +260,7 @@ className="border-r border-[#ead7ae] p-2 text-[10px] font-medium last:border-r-0
               </p>
 
               <h3 className="mt-2 font-serif text-[40px] max-md:text-[30px]">
-                ₹5,000 Monthly Plan for 11 Months
+                ₹5,000 Monthly Plan for 12 Months
               </h3>
             </div>
 
@@ -287,10 +289,10 @@ className="border-r border-[#ead7ae] p-2 text-[10px] font-medium last:border-r-0
 
                   <tr className="bg-[#f5c542] font-bold text-black">
                     <td className="p-2 text-[10px] md:p-5 md:text-[16px]">Total</td>
-                    <td className="p-2 text-[10px] md:p-5 md:text-[16px]">₹55,000</td>
+                    <td className="p-2 text-[10px] md:p-5 md:text-[16px]">₹60,000</td>
                     <td className="p-2 text-[10px] md:p-5 md:text-[16px]">-</td>
-                    <td className="p-2 text-[10px] md:p-5 md:text-[16px]">3.794 gm</td>
-                    <td className="p-2 text-[10px] md:p-5 md:text-[16px]">₹55,000</td>
+                    <td className="p-2 text-[10px] md:p-5 md:text-[16px]">4.127 gm</td>
+                    <td className="p-2 text-[10px] md:p-5 md:text-[16px]">₹60,000</td>
                   </tr>
                 </tbody>
               </table>
@@ -304,21 +306,28 @@ className="border-r border-[#ead7ae] p-2 text-[10px] font-medium last:border-r-0
 
             <div className="mt-8 space-y-7 text-[17px] leading-8 text-gray-700 max-md:text-[16px] max-md:leading-7">
               <p>
-                On successful completion of 11 months, customers can purchase
+                On successful completion of 12 months, customers can purchase
                 eligible jewellery with value addition benefits as per the
                 scheme rules.
               </p>
 
-              <div>
-                <h4 className="mb-2 text-[22px] font-bold text-black">
-                  Duration
-                </h4>
-                <p>
-                  This jewellery purchase plan is valid for 11 months. Monthly
-                  subscription amount should be paid continuously for all 11
-                  months.
-                </p>
-              </div>
+            <div>
+  <label className="mb-2 block text-white/70">
+    Scheme Duration
+  </label>
+
+  <div className="rounded-xl border border-white/20 bg-black/40 px-4 py-4">
+    <p className="font-bold text-[#f5c542]">
+      12 Months
+    </p>
+
+    <p className="mt-1 text-sm text-white/60">
+      Redeem in months 1–5 with 0% wastage discount, months 6–11 with
+      corresponding wastage discount, or complete 12 months for full
+      eligible wastage discount.
+    </p>
+  </div>
+</div>
 
               <div>
                 <h4 className="mb-2 text-[22px] font-bold text-black">
@@ -357,7 +366,7 @@ className="border-r border-[#ead7ae] p-2 text-[10px] font-medium last:border-r-0
           <button
             onClick={() => navigate("/schemes/register?scheme=flexi-11")}
 className={`${clickable} mx-auto mt-12 flex items-center justify-center gap-3 rounded-full bg-black px-12 py-4 text-[17px] font-bold text-white max-md:w-full`}
->            Join Flexi 11 Plan <ArrowRight className="h-5 w-5" />
+>            Join Flexi 12 Plan <ArrowRight className="h-5 w-5" />
           </button>
         </div>
       </section>
